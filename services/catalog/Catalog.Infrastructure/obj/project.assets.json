@@ -1,0 +1,117 @@
+{
+  "version": 3,
+  "targets": {
+    "net9.0": {
+      "Catalog.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "Catalog.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Catalog.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Catalog.Application.dll": {}
+        }
+      },
+      "Catalog.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/Catalog.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Catalog.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Catalog.Application/1.0.0": {
+      "type": "project",
+      "path": "../Catalog.Application/Catalog.Application.csproj",
+      "msbuildProject": "../Catalog.Application/Catalog.Application.csproj"
+    },
+    "Catalog.Domain/1.0.0": {
+      "type": "project",
+      "path": "../Catalog.Domain/Catalog.Domain.csproj",
+      "msbuildProject": "../Catalog.Domain/Catalog.Domain.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net9.0": [
+      "Catalog.Application >= 1.0.0",
+      "Catalog.Domain >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/yanpershai/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj",
+      "projectName": "Catalog.Infrastructure",
+      "projectPath": "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj",
+      "packagesPath": "/Users/yanpershai/.nuget/packages/",
+      "outputPath": "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Infrastructure/obj/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/yanpershai/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net9.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {
+            "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Application/Catalog.Application.csproj": {
+              "projectPath": "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Application/Catalog.Application.csproj"
+            },
+            "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Domain/Catalog.Domain.csproj": {
+              "projectPath": "/Users/yanpershai/Documents/IT/Saga/services/catalog/Catalog.Domain/Catalog.Domain.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net9.0": {
+        "targetAlias": "net9.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.306/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

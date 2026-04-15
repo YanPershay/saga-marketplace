@@ -38,4 +38,24 @@ public sealed class Product
         QuantityAvailable = quantityAvailable;
         CreatedAt = createdAt;
     }
+    
+    public void Update(string name, string description, decimal price, int quantityAvailable)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Product name must be provided.", nameof(name));
+
+        if (string.IsNullOrWhiteSpace(description))
+            throw new ArgumentException("Product description must be provided.", nameof(description));
+
+        if (price < 0)
+            throw new ArgumentOutOfRangeException(nameof(price), "Product price cannot be negative.");
+
+        if (quantityAvailable < 0)
+            throw new ArgumentOutOfRangeException(nameof(quantityAvailable), "Available quantity cannot be negative.");
+
+        Name = name;
+        Description = description;
+        Price = price;
+        QuantityAvailable = quantityAvailable;
+    }
 }
