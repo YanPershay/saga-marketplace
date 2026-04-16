@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BuildingBlocks.Inbox")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67b27ea5de821b6e4558fd5a1ccb0231555bc8d5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4abb2bd40998a1041aa2b134f26606a791837657")]
 [assembly: System.Reflection.AssemblyProductAttribute("BuildingBlocks.Inbox")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BuildingBlocks.Inbox")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
