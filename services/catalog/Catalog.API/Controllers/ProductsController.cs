@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Catalog.API.Contracts.Requests;
 using Catalog.API.Contracts.Responses;
 using Catalog.API.Mappings;
@@ -15,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Catalog.API.Controllers;
 
 [ApiController]
-[Route("api/products")]
+[Route("products")]
 public class ProductsController(
     CreateProductHandler createHandler,
     GetProductsHandler getProductsHandler,
