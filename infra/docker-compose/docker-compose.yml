@@ -20,11 +20,10 @@ services:
     networks:
       - marketplace-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
-
 
   postgres:
     image: postgres:15
@@ -43,16 +42,32 @@ services:
     networks:
       - marketplace-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  catalog-api:
+    build:
+      context: ../..
+      dockerfile: services/catalog/Catalog.API/Dockerfile
+    container_name: marketplace-catalog-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__CatalogDb: Host=postgres;Port=5432;Database=catalog_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - marketplace-network
 
 networks:
   marketplace-network:
     driver: bridge
-
 
 volumes:
   rabbitmq_data:
