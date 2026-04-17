@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "xwq8w+aYsS4=",
+  "dgSpecHash": "vdufrq8vvmc=",
   "success": true,
   "projectFilePath": "/Users/yanpershai/Documents/IT/Saga/building-blocks/BuildingBlocks.Inbox/BuildingBlocks.Inbox.csproj",
-  "expectedPackageFiles": [
-    "/Users/yanpershai/.nuget/packages/microsoft.netcore.app.ref/9.0.15/microsoft.netcore.app.ref.9.0.15.nupkg.sha512",
-    "/Users/yanpershai/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.15/microsoft.aspnetcore.app.ref.9.0.15.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
