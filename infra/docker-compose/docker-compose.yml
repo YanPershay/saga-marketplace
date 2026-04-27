@@ -65,6 +65,24 @@ services:
     networks:
       - marketplace-network
 
+  ai-api:
+    build:
+      context: ../..
+      dockerfile: services/ai/AI.API/Dockerfile
+    container_name: marketplace-ai-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Gemini__ApiKey: ${GEMINI_API_KEY}
+      Gemini__BaseUrl: https://generativelanguage.googleapis.com/v1beta/
+      Gemini__Model: gemini-2.5-flash
+      Gemini__TimeoutSeconds: 30
+    ports:
+      - "8082:8080"
+    networks:
+      - marketplace-network
+
 networks:
   marketplace-network:
     driver: bridge
