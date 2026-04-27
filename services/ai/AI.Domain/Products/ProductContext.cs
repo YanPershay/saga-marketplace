@@ -1,10 +1,8 @@
 namespace AI.Domain.Products;
 
-public sealed record ProductContext
-{
-    public Guid Id { get; init; }
-    public string Name { get; init; } = null!;
-    public string Description { get; init; } = null!;
-    public decimal Price { get; init; }
-    public string Category { get; init; } = null!;
-}
+public sealed record ProductContext(
+    Guid Id,
+    string Name,
+    string Description,
+    decimal Price,
+    string Category);
