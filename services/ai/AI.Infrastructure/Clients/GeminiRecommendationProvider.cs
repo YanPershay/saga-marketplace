@@ -76,6 +76,11 @@ public sealed class GeminiRecommendationProvider : IRecommendationProvider
         {
             throw new AiProviderRateLimitException("Gemini rate limit exceeded. Try again later");
         }
+        
+        if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+        {
+            throw new InvalidOperationException("Gemini service is temporarily unavailable. Try again later.");
+        }
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
