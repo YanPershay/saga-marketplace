@@ -17,7 +17,7 @@ public class UpdateProductHandler
         if (product == null)
             throw new KeyNotFoundException($"Product with id {command.Id} not found.");
         
-        product.Update(command.Name, command.Description, command.Price, command.QuantityAvailable);
+        product.Update(command.Name, command.Description, command.Price, command.QuantityAvailable, command.Category);
         
         await _productRepository.UpdateAsync(product, cancellationToken);
     }

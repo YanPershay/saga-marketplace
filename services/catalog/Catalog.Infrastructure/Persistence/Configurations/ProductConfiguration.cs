@@ -25,5 +25,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         
         builder.Property(p => p.QuantityAvailable)
             .IsRequired();
+        
+        builder.Property(p => p.Category)
+            .IsRequired()
+            .HasMaxLength(100);
     }
 }

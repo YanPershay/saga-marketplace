@@ -4,6 +4,7 @@ using Catalog.API.Mappings;
 using Catalog.Application.Products.CreateProduct;
 using Catalog.Application.Products.DeleteProduct;
 using Catalog.Application.Products.GetProductById;
+using Catalog.Application.Products.GetProductRecommendations;
 using Catalog.Application.Products.GetProducts;
 using Catalog.Application.Products.UpdateProduct;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,8 @@ public class ProductsController(
     GetProductsHandler getProductsHandler,
     GetProductByIdHandler getByIdHandler,
     UpdateProductHandler updateHandler,
-    DeleteProductHandler deleteHandler
+    DeleteProductHandler deleteHandler,
+    GetProductRecommendationsHandler getProductRecommendationsHandler
 ) : ControllerBase
 {
     [HttpGet]
@@ -67,5 +69,19 @@ public class ProductsController(
         await deleteHandler.HandleAsync(command);
         
         return NoContent();
+    }
+    
+    [HttpGet("{id:guid}/recommendations")]
+    public async Task<ActionResult<IReadOnlyCollection<ProductRecommendationResponse>>> GetRecommendations(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetProductRecommendationsQuery(id);
+
+        var result = await getProductRecommendationsHandler.HandleAsync(query, cancellationToken);
+
+        var response = result.Select(r => r.ToResponse()).ToList();
+
+        return Ok(response);
     }
 }

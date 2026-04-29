@@ -6,4 +6,5 @@ public sealed record CreateProductRequest
     public required string Description { get; init; }
     public required decimal Price { get; init; }
     public required int QuantityAvailable { get; init; }
+    public required string Category { get; init; }
 }

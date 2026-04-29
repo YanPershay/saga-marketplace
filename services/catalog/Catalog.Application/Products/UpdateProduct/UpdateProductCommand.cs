@@ -8,8 +8,9 @@ public class UpdateProductCommand
     public decimal Price { get; }
     
     public int QuantityAvailable { get; }
+    public string Category { get; }
     
-    public UpdateProductCommand(Guid id, string name, string description, decimal price, int quantityAvailable)
+    public UpdateProductCommand(Guid id, string name, string description, decimal price, int quantityAvailable, string category)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Product id cannot be empty.", nameof(id));
@@ -25,11 +26,15 @@ public class UpdateProductCommand
         
         if (quantityAvailable < 0)
             throw new ArgumentOutOfRangeException(nameof(quantityAvailable), "Available quantity cannot be negative.");
+        
+        if (category != null && string.IsNullOrWhiteSpace(category))
+            throw new ArgumentException("Product category cannot be empty if provided.", nameof(category));
 
         Id = id;
         Name = name;
         Description = description;
         Price = price;
+        Category = category;
         QuantityAvailable = quantityAvailable;
     }
 }

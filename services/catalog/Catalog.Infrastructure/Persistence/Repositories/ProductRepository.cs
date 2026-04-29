@@ -42,4 +42,14 @@ public class ProductRepository : IProductRepository
         _context.Products.Remove(product);
         await _context.SaveChangesAsync(cancellationToken);
     }
+    
+    public async Task<IReadOnlyCollection<Product>> GetRecommendationCandidatesAsync(
+        Guid productId, string category, int maxCandidates, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .Where(p => p.Id != productId && p.Category == category)
+            .Take(maxCandidates)
+            .ToListAsync(cancellationToken);
+    }
 }

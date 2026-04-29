@@ -9,4 +9,6 @@ public interface IProductRepository
     Task AddAsync(Product product, CancellationToken cancellationToken = default);
     Task UpdateAsync(Product product, CancellationToken cancellationToken = default);
     Task DeleteAsync(Product product, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<Product>> GetRecommendationCandidatesAsync(
+        Guid productId, string category, int maxCandidates, CancellationToken cancellationToken = default);
 }

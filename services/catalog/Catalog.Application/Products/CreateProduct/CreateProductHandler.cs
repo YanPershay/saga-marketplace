@@ -21,7 +21,8 @@ public class CreateProductHandler
                 command.Description,
                 command.Price,
                 command.QuantityAvailable,
-                DateTimeOffset.UtcNow
+                DateTimeOffset.UtcNow,
+                command.Category
             );
         
             await _productRepository.AddAsync(newProduct, cancellationToken);

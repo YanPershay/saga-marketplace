@@ -8,10 +8,17 @@ public sealed class Product
     public decimal Price { get; private set; }
     public int QuantityAvailable { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public string Category { get; private set; } = null!;
     
     private Product() { }
     
-    public Product(Guid id, string name, string description, decimal price, int quantityAvailable, DateTimeOffset createdAt)
+    public Product(Guid id,
+        string name, 
+        string description, 
+        decimal price, 
+        int quantityAvailable,
+        DateTimeOffset createdAt, 
+        string category)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("Product id cannot be empty.", nameof(id));
@@ -30,6 +37,9 @@ public sealed class Product
 
         if (createdAt == default)
             throw new ArgumentException("CreatedAt must be provided.", nameof(createdAt));
+        
+        if (string.IsNullOrWhiteSpace(category))
+            throw new ArgumentException("Product category must be provided.", nameof(category));
 
         Id = id;
         Name = name;
@@ -37,9 +47,10 @@ public sealed class Product
         Price = price;
         QuantityAvailable = quantityAvailable;
         CreatedAt = createdAt;
+        Category = category;
     }
     
-    public void Update(string name, string description, decimal price, int quantityAvailable)
+    public void Update(string name, string description, decimal price, int quantityAvailable, string category)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Product name must be provided.", nameof(name));
@@ -52,10 +63,14 @@ public sealed class Product
 
         if (quantityAvailable < 0)
             throw new ArgumentOutOfRangeException(nameof(quantityAvailable), "Available quantity cannot be negative.");
+        
+        if (string.IsNullOrWhiteSpace(category))
+            throw new ArgumentException("Product category must be provided.", nameof(category));
 
         Name = name;
         Description = description;
         Price = price;
         QuantityAvailable = quantityAvailable;
+        Category = category;
     }
 }
