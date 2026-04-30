@@ -7,47 +7,63 @@ using Catalog.Application.Products.GetProductRecommendations;
 using Catalog.Application.Products.GetProducts;
 using Catalog.Application.Products.UpdateProduct;
 using Catalog.Infrastructure.Clients.AI;
+using Catalog.Infrastructure.HealthChecks;
 using Catalog.Infrastructure.Options;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Repositories;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var services = builder.Services;
+builder.Services.AddControllers();
 
-services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
+builder.Services.AddHealthChecks()
+    .AddCheck<AiServiceHealthCheck>("ai-service");
 
-services.AddDbContext<CatalogDbContext>(options =>
+builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("CatalogDb")));
 
-services.AddScoped<IProductRepository, ProductRepository>();
-services.AddScoped<CreateProductHandler>();
-services.AddScoped<GetProductsHandler>();
-services.AddScoped<GetProductByIdHandler>();
-services.AddScoped<UpdateProductHandler>();
-services.AddScoped<DeleteProductHandler>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<CreateProductHandler>();
+builder.Services.AddScoped<GetProductsHandler>();
+builder.Services.AddScoped<GetProductByIdHandler>();
+builder.Services.AddScoped<UpdateProductHandler>();
+builder.Services.AddScoped<DeleteProductHandler>();
 
-services.AddScoped<GetProductRecommendationsHandler>();
+builder.Services.AddScoped<GetProductRecommendationsHandler>();
 
-services.Configure<AiServiceOptions>(
-    builder.Configuration.GetSection("AiService"));
+builder.Services.AddSingleton<IValidateOptions<AiServiceOptions>, AiServiceOptionsValidator>();
 
-services.AddHttpClient<IAiRecommendationClient, AiRecommendationHttpClient>((sp, client) =>
+builder.Services.AddOptions<AiServiceOptions>()
+    .Bind(builder.Configuration.GetSection("AiService"))
+    .ValidateOnStart();
+
+builder.Services.AddHttpClient<IAiRecommendationClient, AiRecommendationHttpClient>((sp, client) =>
 {
     var options = sp.GetRequiredService<IOptions<AiServiceOptions>>().Value;
 
     client.BaseAddress = new Uri(options.BaseUrl);
     client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
 });
+
+builder.Services.AddHttpClient<AiServiceHealthCheck>((sp, client) =>
+{
+    var options = sp.GetRequiredService<IOptions<AiServiceOptions>>().Value;
+
+    client.BaseAddress = new Uri(options.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(2);
+});
+
+builder.Services.AddOptions<ProductRecommendationsOptions>()
+    .Bind(builder.Configuration.GetSection("ProductRecommendations"))
+    .Validate(options => options.MaxCandidates > 0, "MaxCandidates must be greater than 0.")
+    .Validate(options => options.FallbackCount > 0, "FallbackCount must be greater than 0.")
+    .Validate(options => options.FallbackCount <= options.MaxCandidates, "FallbackCount cannot be greater than MaxCandidates.")
+    .ValidateOnStart();
 
 var app = builder.Build();
 
@@ -62,5 +78,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready");
 
 app.Run();
