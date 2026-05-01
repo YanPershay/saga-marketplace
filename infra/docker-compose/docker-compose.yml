@@ -83,6 +83,24 @@ services:
     networks:
       - marketplace-network
 
+  order-api:
+    build:
+      context: ../..
+      dockerfile: services/order/Order.API/Dockerfile
+    container_name: marketplace-order-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__OrderDb: Host=postgres;Port=5432;Database=order_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+    ports:
+      - "8083:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - marketplace-network
+
 networks:
   marketplace-network:
     driver: bridge

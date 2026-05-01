@@ -12,9 +12,6 @@ This project is a **production-grade microservices playground** designed to gain
 - Kubernetes deployment
 - Clean, high-level code structure
 
-This is **not a demo app** and **not a toy CRUD**.
-The goal is to understand how reliable microservices are built from scratch.
-
 ---
 
 ## High-Level Architecture
@@ -37,6 +34,22 @@ The goal is to understand how reliable microservices are built from scratch.
 - **Shipping** — shipment arrangement
 - **Notification** — side-effect notifications
 - **AI Service** — async AI jobs (non-blocking)
+
+---
+
+## AI Recommendations
+
+Catalog exposes:
+GET /products/{id}/recommendations
+
+Flow:
+1. Catalog loads the current product.
+2. Catalog selects recommendation candidates from the same category.
+3. Catalog calls AI Service via HTTP.
+4. AI Service calls Gemini and returns structured recommendations.
+5. Catalog maps recommended product IDs back to full product data.
+
+If AI Service is unavailable, times out, or returns an invalid response, Catalog returns fallback recommendations from local catalog candidates.
 
 ---
 
