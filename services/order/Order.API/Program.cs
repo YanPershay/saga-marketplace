@@ -1,3 +1,5 @@
+using BuildingBlocks.Messaging;
+using BuildingBlocks.Messaging.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
 using Order.Application.Abstractions;
 using Order.Application.Orders.CreateOrder;
@@ -21,6 +23,11 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 builder.Services.AddScoped<CreateOrderHandler>();
 builder.Services.AddScoped<GetOrderByIdHandler>();
+
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection("RabbitMq"));
+
+builder.Services.AddScoped<IEventPublisher, RabbitMqEventPublisher>();
 
 builder.Services.AddHealthChecks();
 

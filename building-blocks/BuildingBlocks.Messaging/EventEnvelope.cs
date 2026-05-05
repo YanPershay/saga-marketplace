@@ -7,7 +7,7 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
     public Guid? CausationId { get; }
     public string EventType { get; }
     public int Version { get; }
-    public DateTime OccurredAtUtc { get; }
+    public DateTimeOffset OccurredAtUtc { get; }
     public TPayload Payload { get; }
 
     public EventEnvelope(
@@ -15,7 +15,7 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
         Guid correlationId,
         string eventType,
         int version,
-        DateTime occurredAtUtc,
+        DateTimeOffset occurredAtUtc,
         TPayload payload,
         Guid? causationId = null)
     {
@@ -38,5 +38,23 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
         Version = version;
         OccurredAtUtc = occurredAtUtc;
         Payload = payload;
+    }
+    
+    public static EventEnvelope<TPayload> Create(
+        TPayload payload,
+        Guid? correlationId = null,
+        Guid? causationId = null)
+    {
+        var messageId = Guid.NewGuid();
+        var corrId = correlationId ?? Guid.NewGuid();
+
+        return new EventEnvelope<TPayload>(
+            messageId: messageId,
+            correlationId: corrId,
+            eventType: typeof(TPayload).Name,
+            version: payload.Version,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            payload: payload,
+            causationId: causationId);
     }
 }

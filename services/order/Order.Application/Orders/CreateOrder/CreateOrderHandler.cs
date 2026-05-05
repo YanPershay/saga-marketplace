@@ -1,3 +1,5 @@
+using BuildingBlocks.Messaging;
+using BuildingBlocks.Messaging.Events;
 using Order.Application.Abstractions;
 using Order.Domain.Orders;
 
@@ -6,10 +8,12 @@ namespace Order.Application.Orders.CreateOrder;
 public sealed class CreateOrderHandler
 {
     private readonly IOrderRepository _orderRepository;
-    
-    public CreateOrderHandler(IOrderRepository orderRepository)
+    private readonly IEventPublisher _eventPublisher;
+
+    public CreateOrderHandler(IOrderRepository orderRepository, IEventPublisher eventPublisher)
     {
         _orderRepository = orderRepository;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<Guid> HandleAsync(
@@ -27,9 +31,18 @@ public sealed class CreateOrderHandler
             .ToList();
 
         var order = Domain.Orders.Order.Create(command.CustomerId, orderItems);
+
+        await _orderRepository.AddAsync(order, cancellationToken);
+
+        var orderCreatedEvent = new OrderCreatedIntegrationEvent(
+            order.Id,
+            order.CustomerId,
+            order.TotalPrice,
+            order.CreatedAt
+        );
         
-        await  _orderRepository.AddAsync(order, cancellationToken);
-        
+        await _eventPublisher.PublishAsync(orderCreatedEvent, cancellationToken);
+
         return order.Id;
     }
 }

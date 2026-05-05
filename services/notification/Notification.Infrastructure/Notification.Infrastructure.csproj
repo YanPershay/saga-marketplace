@@ -9,7 +9,11 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Messaging.RabbitMQ\BuildingBlocks.Messaging.RabbitMQ.csproj" />
       <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Messaging\BuildingBlocks.Messaging.csproj" />
-      <ProjectReference Include="..\Order.Domain\Order.Domain.csproj" />
+      <ProjectReference Include="..\Notification.Application\Notification.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
     </ItemGroup>
 
 </Project>
