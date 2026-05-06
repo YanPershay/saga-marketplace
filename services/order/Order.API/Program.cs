@@ -1,10 +1,12 @@
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
+using Order.API.Workers;
 using Order.Application.Abstractions;
 using Order.Application.Orders.CreateOrder;
 using Order.Application.Orders.GetOrderById;
 using Order.Infrastructure.Persistence;
+using Order.Infrastructure.Persistence.Outbox;
 using Order.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,13 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 builder.Services.AddScoped<CreateOrderHandler>();
 builder.Services.AddScoped<GetOrderByIdHandler>();
+
+builder.Services.AddScoped<IOrderUnitOfWork, OrderUnitOfWork>();
+builder.Services.AddScoped<IRawMessagePublisher, RabbitMqRawMessagePublisher>();
+
+builder.Services.AddScoped<OutboxPublisher>();
+
+builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.Events;
 using Order.Application.Abstractions;
@@ -8,12 +9,12 @@ namespace Order.Application.Orders.CreateOrder;
 public sealed class CreateOrderHandler
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IEventPublisher _eventPublisher;
+    private readonly IOrderUnitOfWork _orderUnitOfWork;
 
-    public CreateOrderHandler(IOrderRepository orderRepository, IEventPublisher eventPublisher)
+    public CreateOrderHandler(IOrderRepository orderRepository, IOrderUnitOfWork orderUnitOfWork)
     {
         _orderRepository = orderRepository;
-        _eventPublisher = eventPublisher;
+        _orderUnitOfWork = orderUnitOfWork;
     }
 
     public async Task<Guid> HandleAsync(
@@ -32,8 +33,6 @@ public sealed class CreateOrderHandler
 
         var order = Domain.Orders.Order.Create(command.CustomerId, orderItems);
 
-        await _orderRepository.AddAsync(order, cancellationToken);
-
         var orderCreatedEvent = new OrderCreatedIntegrationEvent(
             order.Id,
             order.CustomerId,
@@ -41,7 +40,22 @@ public sealed class CreateOrderHandler
             order.CreatedAt
         );
         
-        await _eventPublisher.PublishAsync(orderCreatedEvent, cancellationToken);
+        var envelope = EventEnvelope<OrderCreatedIntegrationEvent>.Create(orderCreatedEvent);
+
+        var payload = JsonSerializer.Serialize(envelope, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        await _orderUnitOfWork.AddOrderWithOutboxMessageAsync(
+            order,
+            envelope.EventType,
+            "order.created",
+            payload,
+            envelope.MessageId,
+            envelope.CorrelationId,
+            envelope.OccurredAtUtc,
+            cancellationToken);
 
         return order.Id;
     }
