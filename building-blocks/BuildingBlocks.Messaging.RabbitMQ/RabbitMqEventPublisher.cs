@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using BuildingBlocks.Messaging.Events;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
@@ -62,7 +63,9 @@ public sealed class RabbitMqEventPublisher : IEventPublisher
     {
         return typeof(TEvent).Name switch
         {
-            nameof(Events.OrderCreatedIntegrationEvent) => "order.created",
+            nameof(OrderCreatedIntegrationEvent) => "order.created",
+            nameof(InventoryReservedIntegrationEvent) => "inventory.reserved",
+            nameof(InventoryReservationFailedIntegrationEvent) => "inventory.reservation.failed",
             _ => throw new InvalidOperationException(
                 $"Routing key is not configured for event type {typeof(TEvent).Name}.")
         };

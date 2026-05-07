@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-Inventory.Worker-d792a9e7-64de-49e3-9f87-1d423a54982c</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.15">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.15"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Inventory.Application\Inventory.Application.csproj" />
+      <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
+    </ItemGroup>
+</Project>

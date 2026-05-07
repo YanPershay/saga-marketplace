@@ -4,8 +4,12 @@ public sealed record OrderCreatedIntegrationEvent(
     Guid OrderId,
     Guid CustomerId,
     decimal TotalAmount,
-    DateTimeOffset CreatedAt
-) : IIntegrationEvent
+    DateTimeOffset CreatedAt,
+    IReadOnlyCollection<OrderCreatedIntegrationEventItem> Items) : IIntegrationEvent
 {
-    public int Version => 1;
+    public int Version => 2;
 }
+
+public sealed record OrderCreatedIntegrationEventItem(
+    Guid ProductId,
+    int Quantity);

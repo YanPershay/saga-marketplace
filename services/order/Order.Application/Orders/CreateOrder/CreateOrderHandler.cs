@@ -37,9 +37,14 @@ public sealed class CreateOrderHandler
             order.Id,
             order.CustomerId,
             order.TotalPrice,
-            order.CreatedAt
+            order.CreatedAt,
+            order.OrderItems
+                .Select(item => new OrderCreatedIntegrationEventItem(
+                    item.ProductId,
+                    item.Quantity))
+                .ToList()
         );
-        
+
         var envelope = EventEnvelope<OrderCreatedIntegrationEvent>.Create(orderCreatedEvent);
 
         var payload = JsonSerializer.Serialize(envelope, new JsonSerializerOptions
