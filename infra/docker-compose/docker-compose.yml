@@ -101,6 +101,49 @@ services:
     networks:
       - marketplace-network
 
+  inventory-worker:
+    build:
+      context: ../..
+      dockerfile: services/inventory/Inventory.Worker/Dockerfile
+    container_name: marketplace-inventory-worker
+    restart: unless-stopped
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__InventoryDatabase: Host=postgres;Port=5432;Database=inventory_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__UserName: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+      RabbitMq__VirtualHost: ${RABBITMQ_VHOST}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - marketplace-network
+
+  payment-worker:
+    build:
+      context: ../..
+      dockerfile: services/payment/Payment.Worker/Dockerfile
+    container_name: marketplace-payment-worker
+    restart: unless-stopped
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__PaymentDatabase: Host=postgres;Port=5432;Database=payment_db;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      RabbitMq__HostName: rabbitmq
+      RabbitMq__UserName: ${RABBITMQ_USER}
+      RabbitMq__Password: ${RABBITMQ_PASSWORD}
+      RabbitMq__VirtualHost: ${RABBITMQ_VHOST}
+      PaymentSimulation__ForceFailure: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - marketplace-network
+
 networks:
   marketplace-network:
     driver: bridge
