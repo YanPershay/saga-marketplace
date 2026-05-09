@@ -10,6 +10,6 @@ public sealed class PaymentRabbitMqOptions
 
     public string ExchangeName { get; set; } = "marketplace.domain.events";
 
-    public string InventoryReservedQueueName { get; set; } = "payment.inventory-reserved";
-    public string InventoryReservedRoutingKey { get; set; } = "inventory.reserved";
+    public string PaymentRequestedQueueName { get; set; } = "payment.payment-requested";
+    public string PaymentRequestedRoutingKey { get; set; } = "payment.requested";
 }

@@ -30,15 +30,15 @@ builder.Services.AddOptions<RabbitMqOptions>()
 
 builder.Services.AddScoped<IPaymentUnitOfWork, PaymentUnitOfWork>();
 
-builder.Services.AddScoped<InventoryReservedHandler>();
+builder.Services.AddScoped<PaymentRequestedHandler>();
 
 builder.Services.AddScoped<IRawMessagePublisher, RabbitMqRawMessagePublisher>();
 
 builder.Services.AddScoped<OutboxPublisher>();
 
-builder.Services.AddSingleton<RabbitMqInventoryReservedConsumer>();
+builder.Services.AddSingleton<RabbitMqPaymentRequestedConsumer>();
 
-builder.Services.AddHostedService<InventoryReservedConsumerWorker>();
+builder.Services.AddHostedService<PaymentRequestedConsumerWorker>();
 
 builder.Services.AddHostedService<OutboxPublisherWorker>();
 

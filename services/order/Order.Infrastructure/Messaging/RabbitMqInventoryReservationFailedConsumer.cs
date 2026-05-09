@@ -5,30 +5,30 @@ using BuildingBlocks.Messaging.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Payment.Application.Payments;
-using Payment.Infrastructure.Options;
+using Order.Application.Saga;
+using Order.Infrastructure.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Payment.Infrastructure.Messaging;
+namespace Order.Infrastructure.Messaging;
 
-public sealed class RabbitMqInventoryReservedConsumer
+public sealed class RabbitMqInventoryReservationFailedConsumer
 {
-    private readonly PaymentRabbitMqOptions _options;
+    private readonly OrderRabbitMqOptions _options;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<RabbitMqInventoryReservedConsumer> _logger;
+    private readonly ILogger<RabbitMqInventoryReservationFailedConsumer> _logger;
 
-    public RabbitMqInventoryReservedConsumer(
-        IOptions<PaymentRabbitMqOptions> options,
+    public RabbitMqInventoryReservationFailedConsumer(
+        IOptions<OrderRabbitMqOptions> options,
         IServiceScopeFactory scopeFactory,
-        ILogger<RabbitMqInventoryReservedConsumer> logger)
+        ILogger<RabbitMqInventoryReservationFailedConsumer> logger)
     {
         _options = options.Value;
         _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken = default)
     {
         var factory = new ConnectionFactory
         {
@@ -36,7 +36,7 @@ public sealed class RabbitMqInventoryReservedConsumer
             UserName = _options.UserName,
             Password = _options.Password,
             VirtualHost = _options.VirtualHost,
-            Port = _options.Port
+            Port = _options.Port,
         };
 
         var connection = await factory.CreateConnectionAsync(cancellationToken);
@@ -50,16 +50,16 @@ public sealed class RabbitMqInventoryReservedConsumer
             cancellationToken: cancellationToken);
 
         await channel.QueueDeclareAsync(
-            queue: _options.InventoryReservedQueueName,
+            queue: _options.InventoryReservationFailedQueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
             cancellationToken: cancellationToken);
 
         await channel.QueueBindAsync(
-            queue: _options.InventoryReservedQueueName,
+            queue: _options.InventoryReservationFailedQueueName,
             exchange: _options.ExchangeName,
-            routingKey: _options.InventoryReservedRoutingKey,
+            routingKey: _options.InventoryReservationFailedRoutingKey,
             cancellationToken: cancellationToken);
 
         var consumer = new AsyncEventingBasicConsumer(channel);
@@ -70,16 +70,16 @@ public sealed class RabbitMqInventoryReservedConsumer
             {
                 var body = Encoding.UTF8.GetString(args.Body.ToArray());
 
-                var envelope = JsonSerializer.Deserialize<EventEnvelope<InventoryReservedIntegrationEvent>>(
+                var envelope = JsonSerializer.Deserialize<EventEnvelope<InventoryReservationFailedIntegrationEvent>>(
                     body,
                     new JsonSerializerOptions
                     {
-                        PropertyNameCaseInsensitive = true,
+                        PropertyNameCaseInsensitive = true
                     });
 
                 if (envelope is null)
                 {
-                    _logger.LogError("Failed to deserialize InventoryReserved event.");
+                    _logger.LogError("Failed to deserialize InventoryReservationFailed event.");
 
                     await channel.BasicNackAsync(
                         args.DeliveryTag,
@@ -93,7 +93,7 @@ public sealed class RabbitMqInventoryReservedConsumer
                 using var scope = _scopeFactory.CreateScope();
 
                 var handler = scope.ServiceProvider
-                    .GetRequiredService<InventoryReservedHandler>();
+                    .GetRequiredService<InventoryReservationFailedHandler>();
 
                 await handler.HandleAsync(envelope, cancellationToken);
 
@@ -104,7 +104,7 @@ public sealed class RabbitMqInventoryReservedConsumer
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing InventoryReserved event.");
+                _logger.LogError(ex, "Error processing InventoryReservationFailed event.");
 
                 await channel.BasicNackAsync(
                     args.DeliveryTag,
@@ -115,14 +115,14 @@ public sealed class RabbitMqInventoryReservedConsumer
         };
 
         await channel.BasicConsumeAsync(
-            queue: _options.InventoryReservedQueueName,
+            queue: _options.InventoryReservationFailedQueueName,
             autoAck: false,
             consumer: consumer,
             cancellationToken: cancellationToken);
 
         _logger.LogInformation(
-            "Payment consumer started. Queue: {QueueName}, RoutingKey: {RoutingKey}",
-            _options.InventoryReservedQueueName,
-            _options.InventoryReservedRoutingKey);
+            "InventoryReservationFailed consumer started. Queue: {QueueName}, RoutingKey: {RoutingKey}",
+            _options.InventoryReservationFailedQueueName,
+            _options.InventoryReservationFailedRoutingKey);
     }
 }

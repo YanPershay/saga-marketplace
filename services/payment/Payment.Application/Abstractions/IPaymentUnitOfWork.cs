@@ -11,7 +11,7 @@ public interface IPaymentUnitOfWork
         CancellationToken cancellationToken = default);
 
     Task ProcessPaymentAndSaveOutboxAsync(
-        EventEnvelope<InventoryReservedIntegrationEvent> envelope,
+        EventEnvelope<PaymentRequestedIntegrationEvent> envelope,
         string consumerName,
         bool forceFailure,
         CancellationToken cancellationToken = default);

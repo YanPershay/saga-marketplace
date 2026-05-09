@@ -27,7 +27,7 @@ public sealed class Order
         {
             Id = Guid.NewGuid(),
             CustomerId = customerId,
-            Status = OrderStatus.Pending,
+            Status = OrderStatus.AwaitingInventory,
             TotalPrice = totalPrice,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -35,5 +35,50 @@ public sealed class Order
         order._orderItems.AddRange(orderItems);
         
         return order;
+    }
+    
+    public void MarkInventoryReserved()
+    {
+        if (Status != OrderStatus.AwaitingInventory)
+            throw new InvalidOperationException(
+                $"Cannot mark inventory as reserved when order status is {Status}.");
+
+        Status = OrderStatus.InventoryReserved;
+    }
+
+    public void MarkAwaitingPayment()
+    {
+        if (Status != OrderStatus.InventoryReserved)
+            throw new InvalidOperationException(
+                $"Cannot mark order as awaiting payment when order status is {Status}.");
+
+        Status = OrderStatus.AwaitingPayment;
+    }
+
+    public void MarkPaymentSucceeded()
+    {
+        if (Status != OrderStatus.AwaitingPayment)
+            throw new InvalidOperationException(
+                $"Cannot mark payment as succeeded when order status is {Status}.");
+
+        Status = OrderStatus.PaymentSucceeded;
+    }
+
+    public void MarkPaymentFailed()
+    {
+        if (Status != OrderStatus.AwaitingPayment)
+            throw new InvalidOperationException(
+                $"Cannot mark payment as failed when order status is {Status}.");
+
+        Status = OrderStatus.PaymentFailed;
+    }
+
+    public void Cancel()
+    {
+        if (Status is OrderStatus.Completed or OrderStatus.Cancelled)
+            throw new InvalidOperationException(
+                $"Cannot cancel order when order status is {Status}.");
+
+        Status = OrderStatus.Cancelled;
     }
 }

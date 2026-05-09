@@ -1,24 +1,24 @@
-using Payment.Infrastructure.Messaging;
+using Order.Infrastructure.Messaging;
 
-namespace Payment.Worker.Workers;
+namespace Order.API.Workers;
 
 public sealed class InventoryReservedConsumerWorker : BackgroundService
 {
-    private readonly ILogger<InventoryReservedConsumerWorker> _logger;
     private readonly RabbitMqInventoryReservedConsumer _consumer;
+    private readonly ILogger<InventoryReservedConsumerWorker> _logger;
 
     public InventoryReservedConsumerWorker(
-        ILogger<InventoryReservedConsumerWorker> logger,
-        RabbitMqInventoryReservedConsumer consumer)
+        RabbitMqInventoryReservedConsumer consumer,
+        ILogger<InventoryReservedConsumerWorker> logger)
     {
-        _logger = logger;
         _consumer = consumer;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Payment consumer worker started");
-        
+        _logger.LogInformation("InventoryReserved consumer worker started.");
+
         await _consumer.StartAsync(stoppingToken);
     }
 }

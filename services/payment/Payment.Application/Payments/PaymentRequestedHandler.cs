@@ -7,18 +7,18 @@ using Payment.Application.Options;
 
 namespace Payment.Application.Payments;
 
-public sealed class InventoryReservedHandler
+public sealed class PaymentRequestedHandler
 {
-    private const string ConsumerName = "payment-inventory-reserved-consumer";
+    private const string ConsumerName = "payment-payment-requested-consumer";
 
     private readonly IPaymentUnitOfWork _unitOfWork;
     private readonly PaymentSimulationOptions _simulationOptions;
-    private readonly ILogger<InventoryReservedHandler> _logger;
+    private readonly ILogger<PaymentRequestedHandler> _logger;
 
-    public InventoryReservedHandler(
+    public PaymentRequestedHandler(
         IPaymentUnitOfWork unitOfWork,
         IOptions<PaymentSimulationOptions> simulationOptions,
-        ILogger<InventoryReservedHandler> logger)
+        ILogger<PaymentRequestedHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _simulationOptions = simulationOptions.Value;
@@ -26,7 +26,7 @@ public sealed class InventoryReservedHandler
     }
 
     public async Task HandleAsync(
-        EventEnvelope<InventoryReservedIntegrationEvent> envelope,
+        EventEnvelope<PaymentRequestedIntegrationEvent> envelope,
         CancellationToken cancellationToken = default)
     {
         var alreadyProcessed = await _unitOfWork.HasInboxMessageAsync(
@@ -35,17 +35,15 @@ public sealed class InventoryReservedHandler
         if (alreadyProcessed)
         {
             _logger.LogWarning(
-                "Duplicate InventoryReserved message detected. MessageId: {MessageId}",
+                "Duplicate PaymentRequested message detected. MessageId: {MessageId}",
                 envelope.MessageId);
 
             return;
         }
 
         _logger.LogInformation(
-            "Processing InventoryReserved event. OrderId: {OrderId}",
+            "Processing PaymentRequested event. OrderId: {OrderId}",
             envelope.Payload.OrderId);
-
-        var amount = 100m;
 
         await _unitOfWork.ProcessPaymentAndSaveOutboxAsync(
             envelope,

@@ -31,7 +31,7 @@ public sealed class PaymentUnitOfWork : IPaymentUnitOfWork
     }
 
     public async Task ProcessPaymentAndSaveOutboxAsync(
-        EventEnvelope<InventoryReservedIntegrationEvent> envelope,
+        EventEnvelope<PaymentRequestedIntegrationEvent> envelope,
         string consumerName,
         bool forceFailure,
         CancellationToken cancellationToken = default)
@@ -49,7 +49,7 @@ public sealed class PaymentUnitOfWork : IPaymentUnitOfWork
 
         var payment = Domain.Payments.Payment.Create(
             envelope.Payload.OrderId,
-            amount: 100m);
+            amount: envelope.Payload.Amount);
 
         Guid resultMessageId;
         Guid resultCorrelationId;
