@@ -29,4 +29,14 @@ public interface IOrderSagaUnitOfWork
         EventEnvelope<PaymentFailedIntegrationEvent> envelope,
         string consumerName,
         CancellationToken cancellationToken = default);
+    
+    Task HandleShipmentCreatedAsync(
+        EventEnvelope<ShipmentCreatedIntegrationEvent> envelope,
+        string consumerName,
+        CancellationToken cancellationToken = default);
+
+    Task HandleShipmentFailedAsync(
+        EventEnvelope<ShipmentFailedIntegrationEvent> envelope,
+        string consumerName,
+        CancellationToken cancellationToken = default);
 }

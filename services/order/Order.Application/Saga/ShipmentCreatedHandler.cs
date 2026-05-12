@@ -5,23 +5,23 @@ using Order.Application.Abstractions;
 
 namespace Order.Application.Saga;
 
-public sealed class PaymentFailedHandler
+public sealed class ShipmentCreatedHandler
 {
-    private const string ConsumerName = "order-payment-failed-consumer";
+    private const string ConsumerName = "order-shipment-created-consumer";
 
     private readonly IOrderSagaUnitOfWork _unitOfWork;
-    private readonly ILogger<PaymentFailedHandler> _logger;
+    private readonly ILogger<ShipmentCreatedHandler> _logger;
 
-    public PaymentFailedHandler(
+    public ShipmentCreatedHandler(
         IOrderSagaUnitOfWork unitOfWork,
-        ILogger<PaymentFailedHandler> logger)
+        ILogger<ShipmentCreatedHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
     public async Task HandleAsync(
-        EventEnvelope<PaymentFailedIntegrationEvent> envelope,
+        EventEnvelope<ShipmentCreatedIntegrationEvent> envelope,
         CancellationToken cancellationToken = default)
     {
         var alreadyProcessed = await _unitOfWork.HasInboxMessageAsync(
@@ -32,23 +32,23 @@ public sealed class PaymentFailedHandler
         if (alreadyProcessed)
         {
             _logger.LogWarning(
-                "Duplicate PaymentFailed event detected. MessageId: {MessageId}",
+                "Duplicate ShipmentCreated event detected. MessageId: {MessageId}",
                 envelope.MessageId);
 
             return;
         }
 
         _logger.LogInformation(
-            "Handling PaymentFailed event for OrderId: {OrderId}",
+            "Handling ShipmentCreated event for OrderId: {OrderId}",
             envelope.Payload.OrderId);
 
-        await _unitOfWork.HandlePaymentFailedAsync(
+        await _unitOfWork.HandleShipmentCreatedAsync(
             envelope,
             ConsumerName,
             cancellationToken);
 
         _logger.LogInformation(
-            "PaymentFailed handled successfully for OrderId: {OrderId}",
+            "ShipmentCreated handled successfully for OrderId: {OrderId}",
             envelope.Payload.OrderId);
     }
 }

@@ -81,4 +81,40 @@ public sealed class Order
 
         Status = OrderStatus.Cancelled;
     }
+    
+    public void MarkAwaitingShipment()
+    {
+        if (Status != OrderStatus.PaymentSucceeded)
+            throw new InvalidOperationException(
+                $"Cannot mark order as awaiting shipment when order status is {Status}.");
+
+        Status = OrderStatus.AwaitingShipment;
+    }
+
+    public void MarkShipmentCreated()
+    {
+        if (Status != OrderStatus.AwaitingShipment)
+            throw new InvalidOperationException(
+                $"Cannot mark shipment as created when order status is {Status}.");
+
+        Status = OrderStatus.ShipmentCreated;
+    }
+
+    public void MarkShipmentFailed()
+    {
+        if (Status != OrderStatus.AwaitingShipment)
+            throw new InvalidOperationException(
+                $"Cannot mark shipment as failed when order status is {Status}.");
+
+        Status = OrderStatus.ShipmentFailed;
+    }
+
+    public void Complete()
+    {
+        if (Status != OrderStatus.ShipmentCreated)
+            throw new InvalidOperationException(
+                $"Cannot complete order when order status is {Status}.");
+
+        Status = OrderStatus.Completed;
+    }
 }

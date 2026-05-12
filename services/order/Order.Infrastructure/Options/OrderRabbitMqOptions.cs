@@ -21,4 +21,10 @@ public sealed class OrderRabbitMqOptions
 
     public string PaymentFailedQueueName { get; set; } = "order.payment-failed";
     public string PaymentFailedRoutingKey { get; set; } = "payment.failed";
+    
+    public string ShipmentCreatedQueueName { get; set; } = "order.shipment-created";
+    public string ShipmentCreatedRoutingKey { get; set; } = "shipment.created";
+
+    public string ShipmentFailedQueueName { get; set; } = "order.shipment-failed";
+    public string ShipmentFailedRoutingKey { get; set; } = "shipment.failed";
 }

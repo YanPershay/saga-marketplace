@@ -52,6 +52,15 @@ builder.Services.AddScoped<InventoryReservationFailedHandler>();
 builder.Services.AddScoped<PaymentSucceededHandler>();
 builder.Services.AddScoped<PaymentFailedHandler>();
 
+builder.Services.AddScoped<ShipmentCreatedHandler>();
+builder.Services.AddScoped<ShipmentFailedHandler>();
+
+builder.Services.AddSingleton<RabbitMqShipmentCreatedConsumer>();
+builder.Services.AddSingleton<RabbitMqShipmentFailedConsumer>();
+
+builder.Services.AddHostedService<ShipmentCreatedConsumerWorker>();
+builder.Services.AddHostedService<ShipmentFailedConsumerWorker>();
+
 builder.Services.AddSingleton<RabbitMqInventoryReservedConsumer>();
 builder.Services.AddSingleton<RabbitMqInventoryReservationFailedConsumer>();
 builder.Services.AddSingleton<RabbitMqPaymentSucceededConsumer>();
