@@ -24,6 +24,12 @@ builder.Services.Configure<ShippingRabbitMqOptions>(
 builder.Services.Configure<ShippingSimulationOptions>(
     builder.Configuration.GetSection("ShippingSimulation"));
 
+builder.Services.AddOptions<RabbitMqConsumerOptions>()
+    .Bind(builder.Configuration.GetSection("RabbitMqConsumer"))
+    .Validate(options => options.MaxRetryCount > 0, "MaxRetryCount must be greater than 0.")
+    .Validate(options => options.RetryDelayMilliseconds >= 0, "RetryDelayMilliseconds cannot be negative.")
+    .ValidateOnStart();
+
 builder.Services.AddOptions<RabbitMqOptions>()
     .Bind(builder.Configuration.GetSection("RabbitMq"))
     .ValidateOnStart();

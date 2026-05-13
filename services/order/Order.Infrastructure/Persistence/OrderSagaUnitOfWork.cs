@@ -76,6 +76,13 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         {
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogWarning(
+                "Ignoring {EventType} for OrderId {OrderId}. Current status: {CurrentStatus}",
+                envelope.EventType,
+                order.Id,
+                order.Status);
+            
             return;
         }
 
@@ -201,6 +208,13 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         {
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogWarning(
+                "Ignoring {EventType} for OrderId {OrderId}. Current status: {CurrentStatus}",
+                envelope.EventType,
+                order.Id,
+                order.Status);
+            
             return;
         }
 
@@ -276,6 +290,13 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         {
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogWarning(
+                "Ignoring {EventType} for OrderId {OrderId}. Current status: {CurrentStatus}",
+                envelope.EventType,
+                order.Id,
+                order.Status);
+            
             return;
         }
 
@@ -354,6 +375,13 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         {
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogWarning(
+                "Ignoring {EventType} for OrderId {OrderId}. Current status: {CurrentStatus}",
+                envelope.EventType,
+                order.Id,
+                order.Status);
+            
             return;
         }
 
@@ -404,6 +432,13 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         {
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            
+            _logger.LogWarning(
+                "Ignoring {EventType} for OrderId {OrderId}. Current status: {CurrentStatus}",
+                envelope.EventType,
+                order.Id,
+                order.Status);
+            
             return;
         }
         

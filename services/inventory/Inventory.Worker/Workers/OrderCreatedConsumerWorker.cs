@@ -18,7 +18,27 @@ public sealed class OrderCreatedConsumerWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Inventory OrderCreated consumer worker started.");
-        
-        await  _consumer.StartAsync(stoppingToken);
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await _consumer.StartAsync(stoppingToken);
+
+                await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Inventory OrderCreated consumer worker stopped.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Inventory OrderCreated consumer failed. Retrying in 5 seconds.");
+
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
     }
 }

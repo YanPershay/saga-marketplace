@@ -15,10 +15,30 @@ public sealed class ShipmentRequestedConsumerWorker : BackgroundService
         _consumer = consumer;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-        
-        return _consumer.StartAsync(stoppingToken);
+        _logger.LogInformation("ShipmentRequested consumer worker started.");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await _consumer.StartAsync(stoppingToken);
+
+                await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("ShipmentCreated consumer worker stopped.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "ShipmentCreated consumer failed. Retrying in 5 seconds.");
+
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
     }
 }

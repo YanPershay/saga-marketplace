@@ -54,26 +54,13 @@ public sealed class OutboxPublisher
             {
                 var error = ex.Message;
 
-                if (message.RetryCount + 1 >= MaxRetryCount)
-                {
-                    message.MarkAsFailed(error);
+                message.IncreaseRetry(error);
 
-                    _logger.LogError(
-                        ex,
-                        "Outbox message {MessageId} failed after {RetryCount} retries.",
-                        message.MessageId,
-                        message.RetryCount);
-                }
-                else
-                {
-                    message.IncreaseRetry(error);
-
-                    _logger.LogWarning(
-                        ex,
-                        "Failed to publish outbox message {MessageId}. RetryCount: {RetryCount}.",
-                        message.MessageId,
-                        message.RetryCount);
-                }
+                _logger.LogWarning(
+                    ex,
+                    "Failed to publish outbox message {MessageId}. RetryCount: {RetryCount}.",
+                    message.MessageId,
+                    message.RetryCount);
             }
         }
         

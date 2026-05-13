@@ -1,128 +1,59 @@
-using System.Text;
-using System.Text.Json;
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.Events;
+using BuildingBlocks.Messaging.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Order.Application.Saga;
 using Order.Infrastructure.Options;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Order.Infrastructure.Messaging;
 
 public sealed class RabbitMqPaymentFailedConsumer
+    : RabbitMqConsumerBase<PaymentFailedIntegrationEvent>
 {
     private readonly OrderRabbitMqOptions _options;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<RabbitMqPaymentFailedConsumer> _logger;
 
     public RabbitMqPaymentFailedConsumer(
         IOptions<OrderRabbitMqOptions> options,
+        IOptions<RabbitMqConsumerOptions> consumerOptions,
         IServiceScopeFactory scopeFactory,
         ILogger<RabbitMqPaymentFailedConsumer> logger)
+        : base(consumerOptions, logger)
     {
         _options = options.Value;
         _scopeFactory = scopeFactory;
-        _logger = logger;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    protected override string QueueName => _options.PaymentFailedQueueName;
+
+    protected override string RoutingKey => _options.PaymentFailedRoutingKey;
+
+    protected override string ExchangeName => _options.ExchangeName;
+
+    protected override ConnectionFactory CreateConnectionFactory()
     {
-        var factory = new ConnectionFactory
+        return new ConnectionFactory
         {
             HostName = _options.HostName,
+            Port = _options.Port,
             UserName = _options.UserName,
             Password = _options.Password,
-            VirtualHost = _options.VirtualHost,
-            Port = _options.Port,
+            VirtualHost = _options.VirtualHost
         };
+    }
 
-        var connection = await factory.CreateConnectionAsync(cancellationToken);
-        var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+    protected override async Task HandleAsync(
+        EventEnvelope<PaymentFailedIntegrationEvent> envelope,
+        CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
 
-        await channel.ExchangeDeclareAsync(
-            exchange: _options.ExchangeName,
-            type: ExchangeType.Topic,
-            durable: true,
-            autoDelete: false,
-            cancellationToken: cancellationToken);
+        var handler = scope.ServiceProvider
+            .GetRequiredService<PaymentFailedHandler>();
 
-        await channel.QueueDeclareAsync(
-            queue: _options.PaymentFailedQueueName,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            cancellationToken: cancellationToken);
-
-        await channel.QueueBindAsync(
-            queue: _options.PaymentFailedQueueName,
-            exchange: _options.ExchangeName,
-            routingKey: _options.PaymentFailedRoutingKey,
-            cancellationToken: cancellationToken);
-
-        var consumer = new AsyncEventingBasicConsumer(channel);
-
-        consumer.ReceivedAsync += async (_, args) =>
-        {
-            try
-            {
-                var body = Encoding.UTF8.GetString(args.Body.ToArray());
-
-                var envelope = JsonSerializer.Deserialize<EventEnvelope<PaymentFailedIntegrationEvent>>(
-                    body,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                if (envelope is null)
-                {
-                    _logger.LogError("Failed to deserialize PaymentFailed event.");
-
-                    await channel.BasicNackAsync(
-                        args.DeliveryTag,
-                        multiple: false,
-                        requeue: false,
-                        cancellationToken);
-
-                    return;
-                }
-
-                using var scope = _scopeFactory.CreateScope();
-
-                var handler = scope.ServiceProvider
-                    .GetRequiredService<PaymentFailedHandler>();
-
-                await handler.HandleAsync(envelope, cancellationToken);
-
-                await channel.BasicAckAsync(
-                    args.DeliveryTag,
-                    multiple: false,
-                    cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing PaymentFailed event.");
-
-                await channel.BasicNackAsync(
-                    args.DeliveryTag,
-                    multiple: false,
-                    requeue: true,
-                    cancellationToken);
-            }
-        };
-
-        await channel.BasicConsumeAsync(
-            queue: _options.PaymentFailedQueueName,
-            autoAck: false,
-            consumer: consumer,
-            cancellationToken: cancellationToken);
-
-        _logger.LogInformation(
-            "PaymentFailed consumer started. Queue: {QueueName}, RoutingKey: {RoutingKey}",
-            _options.PaymentFailedQueueName,
-            _options.PaymentFailedRoutingKey);
+        await handler.HandleAsync(envelope, cancellationToken);
     }
 }

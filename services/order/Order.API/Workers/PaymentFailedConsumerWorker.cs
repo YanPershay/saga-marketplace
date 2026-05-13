@@ -19,6 +19,26 @@ public sealed class PaymentFailedConsumerWorker : BackgroundService
     {
         _logger.LogInformation("PaymentFailed consumer worker started.");
 
-        await _consumer.StartAsync(stoppingToken);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await _consumer.StartAsync(stoppingToken);
+
+                await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("PaymentFailed consumer worker stopped.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "PaymentFailed consumer worker failed. Retrying in 5 seconds.");
+
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            }
+        }
     }
 }

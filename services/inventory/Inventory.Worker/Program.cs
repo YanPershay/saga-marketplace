@@ -22,6 +22,12 @@ builder.Services.AddScoped<IInventoryUnitOfWork, InventoryUnitOfWork>();
 builder.Services.Configure<InventoryRabbitMqOptions>(
     builder.Configuration.GetSection("RabbitMq"));
 
+builder.Services.AddOptions<RabbitMqConsumerOptions>()
+    .Bind(builder.Configuration.GetSection("RabbitMqConsumer"))
+    .Validate(options => options.MaxRetryCount > 0, "MaxRetryCount must be greater than 0.")
+    .Validate(options => options.RetryDelayMilliseconds >= 0, "RetryDelayMilliseconds cannot be negative.")
+    .ValidateOnStart();
+
 builder.Services.AddOptions<RabbitMqOptions>()
     .Bind(builder.Configuration.GetSection("RabbitMq"));
 
