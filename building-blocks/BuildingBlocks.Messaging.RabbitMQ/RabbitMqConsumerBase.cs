@@ -1,7 +1,10 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using BuildingBlocks.Observability;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Context.Propagation;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -24,6 +27,9 @@ public abstract class RabbitMqConsumerBase<TEvent>
     protected abstract string QueueName { get; }
     protected abstract string ExchangeName { get; }
     protected abstract string RoutingKey { get; }
+    
+    private static readonly TextMapPropagator Propagator =
+        Propagators.DefaultTextMapPropagator;
 
     protected abstract ConnectionFactory CreateConnectionFactory();
 
@@ -101,12 +107,53 @@ public abstract class RabbitMqConsumerBase<TEvent>
 
                     return;
                 }
+                
+                var parentContext = Propagator.Extract(
+                    default,
+                    args.BasicProperties.Headers,
+                    static (headers, key) =>
+                    {
+                        if (headers is null || !headers.TryGetValue(key, out var value))
+                            return [];
+
+                        if (value is byte[] bytes)
+                            return [Encoding.UTF8.GetString(bytes)];
+
+                        return [value.ToString()!];
+                    });
+                
+                using var activity = MessagingTelemetry.ActivitySource.StartActivity(
+                    $"consume {envelope.EventType}",
+                    ActivityKind.Consumer,
+                    parentContext.ActivityContext);
+
+                activity?.SetTag("messaging.system", "rabbitmq");
+                activity?.SetTag("messaging.destination.name", QueueName);
+                activity?.SetTag("messaging.rabbitmq.routing_key", RoutingKey);
+                activity?.SetTag("messaging.operation", "consume");
+                activity?.SetTag("messaging.message_id", envelope.MessageId);
+                activity?.SetTag("saga.correlation_id", envelope.CorrelationId);
+                activity?.SetTag("saga.causation_id", envelope.CausationId);
+                activity?.SetTag("event.type", envelope.EventType);
+                
+                using var scope = _logger.BeginScope(
+                    new Dictionary<string, object>
+                    {
+                        ["CorrelationId"] = envelope.CorrelationId,
+                        ["MessageId"] = envelope.MessageId,
+                        ["EventType"] = envelope.EventType
+                    });
 
                 for (var retryAttempt = 1; retryAttempt <= _consumerOptions.MaxRetryCount; retryAttempt++)
                 {
                     try
                     {
                         await HandleAsync(envelope, cancellationToken);
+                        
+                        MessagingMetrics.MessagesProcessed.Add(
+                            1,
+                            new KeyValuePair<string, object?>("event.type", envelope.EventType),
+                            new KeyValuePair<string, object?>("queue", QueueName));
 
                         await channel.BasicAckAsync(
                             args.DeliveryTag,
@@ -115,7 +162,6 @@ public abstract class RabbitMqConsumerBase<TEvent>
 
                         return;
                     }
-
                     catch (Exception exception)
                     {
                         _logger.LogWarning(
@@ -134,6 +180,11 @@ public abstract class RabbitMqConsumerBase<TEvent>
 
                         if (retryAttempt == _consumerOptions.MaxRetryCount)
                             break;
+                        
+                        MessagingMetrics.MessagesRetried.Add(
+                            1,
+                            new KeyValuePair<string, object?>("event.type", envelope.EventType),
+                            new KeyValuePair<string, object?>("queue", QueueName));
 
                         await Task.Delay(
                             _consumerOptions.RetryDelayMilliseconds,
@@ -148,6 +199,11 @@ public abstract class RabbitMqConsumerBase<TEvent>
                     deadLetterQueueName,
                     envelope.MessageId,
                     envelope.CorrelationId);
+                
+                MessagingMetrics.MessagesMovedToDlq.Add(
+                    1,
+                    new KeyValuePair<string, object?>("event.type", envelope.EventType),
+                    new KeyValuePair<string, object?>("queue", QueueName));
 
                 await channel.BasicRejectAsync(
                     args.DeliveryTag,
@@ -161,6 +217,10 @@ public abstract class RabbitMqConsumerBase<TEvent>
                     "Unexpected error while consuming message. Queue: {QueueName}, RoutingKey: {RoutingKey}",
                     QueueName,
                     RoutingKey);
+                
+                MessagingMetrics.MessagesFailed.Add(
+                    1,
+                    new KeyValuePair<string, object?>("queue", QueueName));
 
                 await channel.BasicRejectAsync(
                     args.DeliveryTag,

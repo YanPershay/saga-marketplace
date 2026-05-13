@@ -1,6 +1,7 @@
 namespace Order.Application.Orders.CreateOrder;
 
 public sealed record CreateOrderCommand(
+    Guid CorrelationId,
     Guid CustomerId,
     IReadOnlyCollection<CreateOrderItem> Items);
 

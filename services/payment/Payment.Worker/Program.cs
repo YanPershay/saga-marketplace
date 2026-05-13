@@ -1,5 +1,6 @@
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Observability;
 using Microsoft.EntityFrameworkCore;
 using Payment.Application.Abstractions;
 using Payment.Application.Options;
@@ -47,6 +48,8 @@ builder.Services.AddSingleton<RabbitMqPaymentRequestedConsumer>();
 builder.Services.AddHostedService<PaymentRequestedConsumerWorker>();
 
 builder.Services.AddHostedService<OutboxPublisherWorker>();
+
+builder.Services.AddOpenTelemetryObservability("Payment.Worker");
 
 var host = builder.Build();
 host.Run();

@@ -45,7 +45,9 @@ public sealed class CreateOrderHandler
                 .ToList()
         );
 
-        var envelope = EventEnvelope<OrderCreatedIntegrationEvent>.Create(orderCreatedEvent);
+        var envelope = EventEnvelope<OrderCreatedIntegrationEvent>.Create(
+            orderCreatedEvent,
+            correlationId: command.CorrelationId);
 
         var payload = JsonSerializer.Serialize(envelope, new JsonSerializerOptions
         {

@@ -1,5 +1,6 @@
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Observability;
 using Microsoft.EntityFrameworkCore;
 using Order.API.Workers;
 using Order.Application.Abstractions;
@@ -71,6 +72,8 @@ builder.Services.AddHostedService<InventoryReservationFailedConsumerWorker>();
 builder.Services.AddHostedService<PaymentSucceededConsumerWorker>();
 builder.Services.AddHostedService<PaymentFailedConsumerWorker>();
 
+builder.Services.AddOpenTelemetryObservability("Order.API");
+
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
@@ -86,8 +89,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCorrelationId();
 app.UseAuthorization();
+app.MapPrometheusScrapingEndpoint();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

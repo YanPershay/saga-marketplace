@@ -13,6 +13,11 @@
         </PackageReference>
         <PackageReference Include="Npgsql" Version="10.0.2" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.7" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
     </ItemGroup>
@@ -20,6 +25,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Messaging.RabbitMQ\BuildingBlocks.Messaging.RabbitMQ.csproj" />
       <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Messaging\BuildingBlocks.Messaging.csproj" />
+      <ProjectReference Include="..\..\..\building-blocks\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
       <ProjectReference Include="..\Order.Application\Order.Application.csproj" />
       <ProjectReference Include="..\Order.Infrastructure\Order.Infrastructure.csproj" />
     </ItemGroup>

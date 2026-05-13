@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace BuildingBlocks.Messaging;
 
 public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
@@ -9,6 +11,8 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
     public int Version { get; }
     public DateTimeOffset OccurredAtUtc { get; }
     public TPayload Payload { get; }
+    public string? TraceParent { get; init; }
+    public string? TraceState { get; init; }
 
     public EventEnvelope(
         Guid messageId,
@@ -48,6 +52,7 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
         var messageId = Guid.NewGuid();
         var corrId = correlationId ?? Guid.NewGuid();
 
+
         return new EventEnvelope<TPayload>(
             messageId: messageId,
             correlationId: corrId,
@@ -55,6 +60,10 @@ public sealed class EventEnvelope<TPayload> where TPayload : IIntegrationEvent
             version: payload.Version,
             occurredAtUtc: DateTimeOffset.UtcNow,
             payload: payload,
-            causationId: causationId);
+            causationId: causationId)
+        {
+            TraceParent = Activity.Current?.Id,
+            TraceState = Activity.Current?.TraceStateString
+        };
     }
 }

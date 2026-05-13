@@ -1,3 +1,4 @@
+using BuildingBlocks.Observability;
 using Microsoft.AspNetCore.Mvc;
 using Order.API.Contracts.Requests;
 using Order.API.Contracts.Responses;
@@ -26,7 +27,15 @@ public sealed class OrdersController : ControllerBase
         CreateOrderRequest request,
         CancellationToken cancellationToken)
     {
+        var correlationId = HttpContext.GetCorrelationId();
+        
+        var parsedCorrelationId =
+            Guid.TryParse(correlationId, out var value)
+                ? value
+                : Guid.NewGuid();
+        
         var command = new CreateOrderCommand(
+            parsedCorrelationId,
             request.CustomerId,
             request.Items.Select(i => new CreateOrderItem(
                 i.ProductId,

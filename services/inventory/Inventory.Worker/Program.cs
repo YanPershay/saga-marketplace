@@ -1,5 +1,6 @@
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Observability;
 using Inventory.Application.Abstractions;
 using Inventory.Application.Orders;
 using Inventory.Infrastructure.Messaging;
@@ -41,6 +42,8 @@ builder.Services.AddScoped<OutboxPublisher>();
 builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 builder.Services.AddScoped<IRawMessagePublisher, RabbitMqRawMessagePublisher>();
+
+builder.Services.AddOpenTelemetryObservability("Inventory.Worker");
 
 var host = builder.Build();
 host.Run();

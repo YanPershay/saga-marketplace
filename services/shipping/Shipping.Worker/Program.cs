@@ -6,6 +6,7 @@ using Shipping.Infrastructure.Persistence;
 using Shipping.Worker.Workers;
 using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
+using BuildingBlocks.Observability;
 using Shipping.Application.Options;
 using Shipping.Infrastructure.Options;
 using Shipping.Infrastructure.Persistence.Outbox;
@@ -47,6 +48,8 @@ builder.Services.AddSingleton<RabbitMqShipmentRequestedConsumer>();
 builder.Services.AddHostedService<ShipmentRequestedConsumerWorker>();
 
 builder.Services.AddHostedService<OutboxPublisherWorker>();
+
+builder.Services.AddOpenTelemetryObservability("Shipping.Worker");
 
 var host = builder.Build();
 host.Run();
