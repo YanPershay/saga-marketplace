@@ -37,3 +37,15 @@ steps:
     tags: |
       $(imageTag)
       latest
+
+- task: KubernetesManifest@1
+  displayName: Deploy order-api to AKS
+  inputs:
+    action: deploy
+    kubernetesServiceConnection: saga-aks
+    namespace: default
+    manifests: |
+      infra/k8s/order-api/deployment.yaml
+      infra/k8s/order-api/service.yaml
+    containers: |
+      sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
