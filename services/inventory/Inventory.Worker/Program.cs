@@ -2,6 +2,7 @@ using BuildingBlocks.Messaging;
 using BuildingBlocks.Messaging.RabbitMQ;
 using BuildingBlocks.Observability;
 using Inventory.Application.Abstractions;
+using Inventory.Application.Inventory;
 using Inventory.Application.Orders;
 using Inventory.Infrastructure.Messaging;
 using Inventory.Infrastructure.Options;
@@ -42,6 +43,12 @@ builder.Services.AddScoped<OutboxPublisher>();
 builder.Services.AddHostedService<OutboxPublisherWorker>();
 
 builder.Services.AddScoped<IRawMessagePublisher, RabbitMqRawMessagePublisher>();
+
+builder.Services.AddScoped<InventoryCommitRequestedHandler>();
+
+builder.Services.AddSingleton<RabbitMqInventoryCommitRequestedConsumer>();
+
+builder.Services.AddHostedService<InventoryCommitRequestedConsumerWorker>();
 
 builder.Services.AddOpenTelemetryObservability("Inventory.Worker");
 

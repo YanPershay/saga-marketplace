@@ -13,6 +13,7 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
 {
     private const string PaymentRequestedRoutingKey = "payment.requested";
     private const string InventoryReleaseRequestedRoutingKey = "inventory.release.requested";
+    private const string InventoryCommitRequestedRoutingKey = "inventory.commit.requested";
     private const string ShipmentRequestedRoutingKey = "shipment.requested";
 
     private const string PaymentRefundRequestedRoutingKey = "payment.refund.requested";
@@ -140,6 +141,7 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
             return;
 
         var order = await _context.Orders
+            .Include(o => o.OrderItems)
             .FirstOrDefaultAsync(
                 o => o.Id == envelope.Payload.OrderId,
                 cancellationToken);
@@ -389,6 +391,40 @@ public sealed class OrderSagaUnitOfWork : IOrderSagaUnitOfWork
         order.Complete();
         _logger.LogInformation(
             "Order {OrderId} completed after shipment was created.",
+            order.Id);
+
+        var inventoryCommitRequestedEvent = new InventoryCommitRequestedIntegrationEvent(
+            order.Id,
+            "Order completed after shipment was created",
+            order.OrderItems
+                .Select(item => new InventoryCommitRequestedItem(
+                    item.ProductId,
+                    item.Quantity))
+                .ToList());
+
+        var inventoryCommitRequestedEnvelope = EventEnvelope<InventoryCommitRequestedIntegrationEvent>.Create(
+            inventoryCommitRequestedEvent,
+            envelope.CorrelationId,
+            envelope.MessageId);
+
+        var inventoryCommitPayload = JsonSerializer.Serialize(inventoryCommitRequestedEnvelope, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        var inventoryCommitOutboxMessage = OutboxMessage.Create(
+            inventoryCommitRequestedEnvelope.MessageId,
+            inventoryCommitRequestedEnvelope.CorrelationId,
+            inventoryCommitRequestedEnvelope.EventType,
+            InventoryCommitRequestedRoutingKey,
+            inventoryCommitPayload,
+            inventoryCommitRequestedEnvelope.OccurredAtUtc);
+
+        await _context.OutboxMessages.AddAsync(inventoryCommitOutboxMessage, cancellationToken);
+
+        _logger.LogInformation(
+            "Created {EventType} outbox message for OrderId {OrderId}.",
+            nameof(InventoryCommitRequestedIntegrationEvent),
             order.Id);
 
         await _context.SaveChangesAsync(cancellationToken);

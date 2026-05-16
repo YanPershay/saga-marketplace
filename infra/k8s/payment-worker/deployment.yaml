@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: payment-worker
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: payment-worker
+
+  template:
+    metadata:
+      labels:
+        app: payment-worker
+
+    spec:
+      containers:
+        - name: payment-worker
+          image: sagamarketplaceacr.azurecr.io/payment-worker:day17
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: "Production"
+
+            - name: RabbitMq__HostName
+              valueFrom:
+                configMapKeyRef:
+                  name: saga-config
+                  key: RabbitMq__HostName
+
+            - name: RabbitMq__UserName
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: RabbitMq__UserName
+
+            - name: RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: RabbitMq__Password
+
+            - name: RabbitMq__VirtualHost
+              value: "/"
+
+            - name: ConnectionStrings__PaymentDb
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: PaymentDbConnectionString

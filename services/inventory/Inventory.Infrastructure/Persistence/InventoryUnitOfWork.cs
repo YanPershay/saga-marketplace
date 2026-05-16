@@ -156,5 +156,54 @@ public sealed class InventoryUnitOfWork : IInventoryUnitOfWork
         await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
+    
+    public async Task CommitReservationAndSaveInboxAsync(
+        EventEnvelope<InventoryCommitRequestedIntegrationEvent> envelope,
+        string consumerName,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await _context.Database
+            .BeginTransactionAsync(cancellationToken);
+
+        var messageAlreadyProcessed = await HasInboxMessageAsync(
+            envelope.MessageId,
+            consumerName,
+            cancellationToken);
+
+        if (messageAlreadyProcessed)
+            return;
+
+        var commitRequested = envelope.Payload;
+
+        var productIds = commitRequested.Items
+            .Select(item => item.ProductId)
+            .Distinct()
+            .ToList();
+
+        var stockItems = await _context.StockItems
+            .Where(stockItem => productIds.Contains(stockItem.ProductId))
+            .ToListAsync(cancellationToken);
+
+        var stockByProductId = stockItems.ToDictionary(stockItem => stockItem.ProductId);
+
+        foreach (var item in commitRequested.Items)
+        {
+            if (!stockByProductId.TryGetValue(item.ProductId, out var stockItem))
+                throw new InvalidOperationException(
+                    $"Stock item {item.ProductId} was not found.");
+
+            stockItem.CommitReservation(item.Quantity);
+        }
+
+        var inboxMessage = InboxMessage.Create(
+            envelope.MessageId,
+            envelope.EventType,
+            consumerName);
+
+        await _context.InboxMessages.AddAsync(inboxMessage, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+    }
 
 }

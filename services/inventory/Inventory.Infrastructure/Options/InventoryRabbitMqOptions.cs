@@ -12,4 +12,9 @@ public sealed class InventoryRabbitMqOptions
 
     public string OrderCreatedQueueName { get; set; } = "inventory.order-created";
     public string OrderCreatedRoutingKey { get; set; } = "order.created";
+
+    public string InventoryCommitRequestedQueueName { get; set; } =
+        "inventory.commit-requested";
+    public string InventoryCommitRequestedRoutingKey { get; set; } =
+        "inventory.commit.requested";
 }

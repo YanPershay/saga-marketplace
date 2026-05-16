@@ -42,4 +42,16 @@ public sealed class StockItem
         QuantityAvailable -= quantity;
         QuantityReserved += quantity;
     }
+    
+    public void CommitReservation(int quantity)
+    {
+        if (quantity <= 0)
+            throw new ArgumentOutOfRangeException(nameof(quantity));
+
+        if (QuantityReserved < quantity)
+            throw new InvalidOperationException(
+                $"Cannot commit {quantity} items. Reserved quantity is {QuantityReserved}.");
+
+        QuantityReserved -= quantity;
+    }
 }

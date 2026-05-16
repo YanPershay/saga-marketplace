@@ -77,3 +77,9 @@ coverage/
 # =========================
 *.tmp
 *.temp
+
+# =========================
+# K8s secrets
+# =========================
+infra/k8s/**/secret.yaml
+infra/k8s/**/secrets.yaml

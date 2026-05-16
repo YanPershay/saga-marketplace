@@ -14,4 +14,9 @@ public interface IInventoryUnitOfWork
         EventEnvelope<OrderCreatedIntegrationEvent> envelope,
         string consumerName,
         CancellationToken cancellationToken = default);
+    
+    Task CommitReservationAndSaveInboxAsync(
+        EventEnvelope<InventoryCommitRequestedIntegrationEvent> envelope,
+        string consumerName,
+        CancellationToken cancellationToken = default);
 }

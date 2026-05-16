@@ -74,6 +74,7 @@ public sealed class RabbitMqEventPublisher : IEventPublisher
             nameof(ShipmentCreatedIntegrationEvent) => "shipment.created",
             nameof(ShipmentFailedIntegrationEvent) => "shipment.failed",
             nameof(PaymentRefundRequestedIntegrationEvent) => "payment.refund.requested",
+            nameof(InventoryCommitRequestedIntegrationEvent) => "inventory.commit.requested",
             _ => throw new InvalidOperationException(
                 $"Routing key is not configured for event type {typeof(TEvent).Name}.")
         };
