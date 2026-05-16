@@ -45,7 +45,7 @@ steps:
     kubernetesServiceEndpoint: saga-aks
     namespace: default
     command: apply
-    arguments: -f infra/k8s/order-api/deployment.yaml -f infra/k8s/order-api/service.yaml
+    arguments: -f infra/k8s/order-api/service.yaml
 
 - task: Kubernetes@1
   displayName: Update order-api image
