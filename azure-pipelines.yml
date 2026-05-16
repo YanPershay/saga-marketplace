@@ -91,3 +91,30 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Update inventory-worker image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/inventory-worker inventory-worker=sagamarketplaceacr.azurecr.io/inventory-worker:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Update payment-worker image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/payment-worker payment-worker=sagamarketplaceacr.azurecr.io/payment-worker:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Update shipping-worker image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/shipping-worker shipping-worker=sagamarketplaceacr.azurecr.io/shipping-worker:$(imageTag)
