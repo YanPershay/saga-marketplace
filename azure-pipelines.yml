@@ -38,14 +38,29 @@ steps:
       $(imageTag)
       latest
 
-- task: KubernetesManifest@1
-  displayName: Deploy order-api to AKS
+- task: Kubernetes@1
+  displayName: Apply order-api manifests
   inputs:
-    action: deploy
-    kubernetesServiceConnection: saga-aks
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
     namespace: default
-    manifests: |
-      infra/k8s/order-api/deployment.yaml
-      infra/k8s/order-api/service.yaml
-    containers: |
-      sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
+    command: apply
+    arguments: -f infra/k8s/order-api/deployment.yaml -f infra/k8s/order-api/service.yaml
+
+- task: Kubernetes@1
+  displayName: Update order-api image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Check order-api rollout status
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/order-api --timeout=180s
