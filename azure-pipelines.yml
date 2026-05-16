@@ -38,6 +38,42 @@ steps:
       $(imageTag)
       latest
 
+- task: Docker@2
+  displayName: Build and push inventory-worker image
+  inputs:
+    command: buildAndPush
+    repository: inventory-worker
+    dockerfile: services/inventory/Inventory.Worker/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
+
+- task: Docker@2
+  displayName: Build and push payment-worker image
+  inputs:
+    command: buildAndPush
+    repository: payment-worker
+    dockerfile: services/payment/Payment.Worker/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
+
+- task: Docker@2
+  displayName: Build and push shipping-worker image
+  inputs:
+    command: buildAndPush
+    repository: shipping-worker
+    dockerfile: services/shipping/Shipping.Worker/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
+
 - task: Kubernetes@1
   displayName: Apply order-api manifests
   inputs:
