@@ -6,6 +6,9 @@ pool:
 
 variables:
   buildConfiguration: Release
+  acrServiceConnection: sagamarketplaceacr
+  acrLoginServer: sagamarketplaceacr.azurecr.io
+  imageTag: $(Build.BuildId)
 
 steps:
 - task: UseDotNet@2
@@ -22,3 +25,15 @@ steps:
 
 - script: dotnet test --configuration $(buildConfiguration) --no-build
   displayName: Test
+
+- task: Docker@2
+  displayName: Build and push order-api image
+  inputs:
+    command: buildAndPush
+    repository: order-api
+    dockerfile: services/order/Order.API/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
