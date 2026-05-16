@@ -63,4 +63,4 @@ steps:
     kubernetesServiceEndpoint: saga-aks
     namespace: default
     command: rollout
-    arguments: status deployment/order-api --timeout=180s
+    arguments: status deployment/order-api --timeout=300s
