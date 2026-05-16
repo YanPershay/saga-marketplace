@@ -102,6 +102,15 @@ steps:
     arguments: deployments
 
 - task: Kubernetes@1
+  displayName: Apply inventory-worker manifest
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/inventory-worker/deployment.yaml
+
+- task: Kubernetes@1
   displayName: Update inventory-worker image
   inputs:
     connectionType: Kubernetes Service Connection
@@ -111,6 +120,15 @@ steps:
     arguments: image deployment/inventory-worker inventory-worker=sagamarketplaceacr.azurecr.io/inventory-worker:$(imageTag)
 
 - task: Kubernetes@1
+  displayName: Apply payment-worker manifest
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/payment-worker/deployment.yaml
+
+- task: Kubernetes@1
   displayName: Update payment-worker image
   inputs:
     connectionType: Kubernetes Service Connection
@@ -118,6 +136,15 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/payment-worker payment-worker=sagamarketplaceacr.azurecr.io/payment-worker:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Apply shipping-worker manifest
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/shipping-worker/deployment.yaml
 
 - task: Kubernetes@1
   displayName: Update shipping-worker image
