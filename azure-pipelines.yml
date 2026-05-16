@@ -55,12 +55,3 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
-
-- task: Kubernetes@1
-  displayName: Check order-api rollout status
-  inputs:
-    connectionType: Kubernetes Service Connection
-    kubernetesServiceEndpoint: saga-aks
-    namespace: default
-    command: rollout
-    arguments: status deployment/order-api --timeout=300s
