@@ -93,15 +93,6 @@ steps:
     arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
 
 - task: Kubernetes@1
-  displayName: Debug deployments
-  inputs:
-    connectionType: Kubernetes Service Connection
-    kubernetesServiceEndpoint: saga-aks
-    namespace: default
-    command: get
-    arguments: deployments
-
-- task: Kubernetes@1
   displayName: Apply inventory-worker manifest
   inputs:
     connectionType: Kubernetes Service Connection
