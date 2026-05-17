@@ -73,6 +73,18 @@ steps:
     tags: |
       $(imageTag)
       latest
+      
+- task: Docker@2
+  displayName: Build and push ai-api image
+  inputs:
+    command: buildAndPush
+    repository: ai-api
+    dockerfile: services/ai/AI.API/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
 
 - task: Kubernetes@1
   displayName: Apply order-api manifests
@@ -145,3 +157,21 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/shipping-worker shipping-worker=sagamarketplaceacr.azurecr.io/shipping-worker:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Apply ai-api manifest
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/ai-api/deployment.yaml -f infra/k8s/ai-api/service.yaml
+
+- task: Kubernetes@1
+  displayName: Update ai-api image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/ai-api ai-api=sagamarketplaceacr.azurecr.io/ai-api:$(imageTag)
