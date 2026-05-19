@@ -39,6 +39,18 @@ steps:
       latest
 
 - task: Docker@2
+  displayName: Build and push catalog-api image
+  inputs:
+    command: buildAndPush
+    repository: catalog-api
+    dockerfile: services/catalog/Catalog.API/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
+
+- task: Docker@2
   displayName: Build and push inventory-worker image
   inputs:
     command: buildAndPush
@@ -86,6 +98,18 @@ steps:
       $(imageTag)
       latest
 
+- task: Docker@2
+  displayName: Build and push gateway-api image
+  inputs:
+    command: buildAndPush
+    repository: gateway-api
+    dockerfile: services/gateway/Gateway.API/Dockerfile
+    buildContext: .
+    containerRegistry: $(acrServiceConnection)
+    tags: |
+      $(imageTag)
+      latest
+
 - task: Kubernetes@1
   displayName: Apply order-api manifests
   inputs:
@@ -103,6 +127,24 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Apply catalog-api manifests
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/catalog-api/deployment.yaml -f infra/k8s/catalog-api/service.yaml
+
+- task: Kubernetes@1
+  displayName: Update catalog-api image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/catalog-api catalog-api=sagamarketplaceacr.azurecr.io/catalog-api:$(imageTag)
 
 - task: Kubernetes@1
   displayName: Apply inventory-worker manifest
@@ -175,3 +217,21 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/ai-api ai-api=sagamarketplaceacr.azurecr.io/ai-api:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Apply gateway-api manifests
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: apply
+    arguments: -f infra/k8s/gateway/deployment.yaml -f infra/k8s/gateway/service.yaml -f infra/k8s/ingress/gateway-ingress.yaml
+
+- task: Kubernetes@1
+  displayName: Update gateway-api image
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: set
+    arguments: image deployment/gateway-api gateway-api=sagamarketplaceacr.azurecr.io/gateway-api:$(imageTag)
