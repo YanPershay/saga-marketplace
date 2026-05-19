@@ -103,7 +103,7 @@ steps:
   inputs:
     command: buildAndPush
     repository: gateway-api
-    dockerfile: services/gateway/Gateway.API/Dockerfile
+    dockerfile: gateway/Gateway.API/Dockerfile
     buildContext: .
     containerRegistry: $(acrServiceConnection)
     tags: |
