@@ -4,7 +4,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
