@@ -105,6 +105,15 @@ steps:
     arguments: image deployment/order-api order-api=sagamarketplaceacr.azurecr.io/order-api:$(imageTag)
 
 - task: Kubernetes@1
+  displayName: Verify order-api rollout
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/order-api --timeout=180s
+
+- task: Kubernetes@1
   displayName: Apply inventory-worker manifest
   inputs:
     connectionType: Kubernetes Service Connection
@@ -121,6 +130,15 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/inventory-worker inventory-worker=sagamarketplaceacr.azurecr.io/inventory-worker:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Verify inventory-worker rollout
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/inventory-worker --timeout=180s
 
 - task: Kubernetes@1
   displayName: Apply payment-worker manifest
@@ -141,6 +159,15 @@ steps:
     arguments: image deployment/payment-worker payment-worker=sagamarketplaceacr.azurecr.io/payment-worker:$(imageTag)
 
 - task: Kubernetes@1
+  displayName: Verify payment-worker rollout
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/payment-worker --timeout=180s
+
+- task: Kubernetes@1
   displayName: Apply shipping-worker manifest
   inputs:
     connectionType: Kubernetes Service Connection
@@ -159,6 +186,15 @@ steps:
     arguments: image deployment/shipping-worker shipping-worker=sagamarketplaceacr.azurecr.io/shipping-worker:$(imageTag)
 
 - task: Kubernetes@1
+  displayName: Verify shipping-worker rollout
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/shipping-worker --timeout=180s
+
+- task: Kubernetes@1
   displayName: Apply ai-api manifest
   inputs:
     connectionType: Kubernetes Service Connection
@@ -175,3 +211,12 @@ steps:
     namespace: default
     command: set
     arguments: image deployment/ai-api ai-api=sagamarketplaceacr.azurecr.io/ai-api:$(imageTag)
+
+- task: Kubernetes@1
+  displayName: Verify ai-api rollout
+  inputs:
+    connectionType: Kubernetes Service Connection
+    kubernetesServiceEndpoint: saga-aks
+    namespace: default
+    command: rollout
+    arguments: status deployment/ai-api --timeout=180s
