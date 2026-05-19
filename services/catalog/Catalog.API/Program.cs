@@ -1,3 +1,5 @@
+using Azure.Messaging.ServiceBus;
+using Catalog.API.Messaging;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.AI;
 using Catalog.Application.Products.CreateProduct;
@@ -10,6 +12,7 @@ using Catalog.Infrastructure.Clients.AI;
 using Catalog.Infrastructure.HealthChecks;
 using Catalog.Infrastructure.Options;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Cosmos.Storage;
 using Catalog.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -64,6 +67,20 @@ builder.Services.AddOptions<ProductRecommendationsOptions>()
     .Validate(options => options.FallbackCount > 0, "FallbackCount must be greater than 0.")
     .Validate(options => options.FallbackCount <= options.MaxCandidates, "FallbackCount cannot be greater than MaxCandidates.")
     .ValidateOnStart();
+
+builder.Services.AddSingleton(_ =>
+{
+    var connectionString =
+        builder.Configuration["ServiceBus:ConnectionString"]
+        ?? throw new InvalidOperationException(
+            "ServiceBus connection string is not configured.");
+
+    return new ServiceBusClient(connectionString);
+});
+
+builder.Services.AddScoped<RecommendationRequestedPublisher>();
+
+builder.Services.AddScoped<CosmosRecommendationReader>();
 
 var app = builder.Build();
 

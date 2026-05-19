@@ -2,7 +2,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 
 metadata:
-  name: order-api-ingress
+  name: saga-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
 spec:
   ingressClassName: nginx
@@ -10,8 +13,18 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
-            pathType: Prefix
+          - path: /ai(/|$)(.*)
+            pathType: ImplementationSpecific
+
+            backend:
+              service:
+                name: ai-api
+
+                port:
+                  number: 80
+
+          - path: /()(.*)
+            pathType: ImplementationSpecific
 
             backend:
               service:

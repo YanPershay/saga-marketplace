@@ -1,6 +1,7 @@
 using Catalog.API.Contracts.Requests;
 using Catalog.API.Contracts.Responses;
 using Catalog.API.Mappings;
+using Catalog.API.Messaging;
 using Catalog.Application.Products.CreateProduct;
 using Catalog.Application.Products.DeleteProduct;
 using Catalog.Application.Products.GetProductById;
@@ -69,19 +70,5 @@ public class ProductsController(
         await deleteHandler.HandleAsync(command);
         
         return NoContent();
-    }
-    
-    [HttpGet("{id:guid}/recommendations")]
-    public async Task<ActionResult<IReadOnlyCollection<ProductRecommendationResponse>>> GetRecommendations(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetProductRecommendationsQuery(id);
-
-        var result = await getProductRecommendationsHandler.HandleAsync(query, cancellationToken);
-
-        var response = result.Select(r => r.ToResponse()).ToList();
-
-        return Ok(response);
     }
 }

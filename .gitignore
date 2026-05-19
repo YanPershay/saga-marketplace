@@ -45,6 +45,7 @@ Thumbs.db
 # =========================
 .env
 .env.*
+**/appsettings.Development.json
 
 # =========================
 # Docker
@@ -83,3 +84,8 @@ coverage/
 # =========================
 infra/k8s/**/secret.yaml
 infra/k8s/**/secrets.yaml
+
+# =========================
+# Azure
+# =========================
+**/local.settings.json

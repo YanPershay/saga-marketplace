@@ -2,6 +2,7 @@ using AI.API.Contracts.Requests;
 using AI.API.Contracts.Responses;
 using AI.API.Mappings;
 using AI.Application.GetRecommendations;
+using AI.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AI.API.Controllers;
@@ -11,15 +12,30 @@ namespace AI.API.Controllers;
 public class RecommendationsController(
     GetRecommendationsHandler handler) : ControllerBase
 {
+    
     [HttpPost]
     public async Task<ActionResult<GetRecommendationsResponse>> GetRecommendations(
         [FromBody] GetRecommendationsRequest request,
         CancellationToken cancellationToken)
     {
-        var command = request.ToCommand();
+        try
+        {
+            var command = request.ToCommand();
 
-        var result = await handler.HandleAsync(command, cancellationToken);
+            var result = await handler.HandleAsync(command, cancellationToken);
 
-        return Ok(result.ToResponse());
+            return Ok(result.ToResponse());
+        }
+        catch (AiProviderRateLimitException)
+        {
+
+            return StatusCode(
+                StatusCodes.Status429TooManyRequests,
+                new
+                {
+                    Error = "AI provider rate limit exceeded.",
+                    Retryable = true
+                });
+        }
     }
 }
