@@ -20,6 +20,41 @@ spec:
       containers:
         - name: catalog-api
           image: sagamarketplaceacr.azurecr.io/catalog-api:latest
+          env:
+            - name: ConnectionStrings__CatalogDb
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: CatalogDbConnectionString
 
+            - name: ServiceBus__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: ServiceBusConnectionString
+
+            - name: ServiceBus__RecommendationTopicName
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: RecommendationTopicName
+
+            - name: CosmosDb__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: CosmosDbConnectionString
+
+            - name: CosmosDb__DatabaseName
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: CosmosDbDatabaseName
+
+            - name: CosmosDb__ContainerName
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: CosmosDbContainerName
           ports:
             - containerPort: 8080

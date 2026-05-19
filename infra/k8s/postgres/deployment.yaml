@@ -40,3 +40,9 @@ spec:
 
             - name: POSTGRES_DB
               value: order_db
+
+            - name: ConnectionStrings__CatalogDb
+              valueFrom:
+                secretKeyRef:
+                  name: saga-secret
+                  key: CatalogDbConnectionString
