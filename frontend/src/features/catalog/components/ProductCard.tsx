@@ -50,10 +50,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-5 border-t border-violet-400/15 pt-4">
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase tracking-[0.22em] text-zinc-500">
-              Stock
+              Availability
             </span>
             <span className="rounded-full border border-violet-400/20 bg-black/25 px-3 py-1 text-sm font-medium text-zinc-200">
-              {product.quantityAvailable} available
+              Stock checked during checkout
             </span>
           </div>
 

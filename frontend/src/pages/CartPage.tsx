@@ -1,10 +1,16 @@
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { createOrder } from "../api/ordersApi";
 import { GlassPanel } from "../components/ui/GlassPanel";
 import { PageHeader } from "../components/ui/PageHeader";
 import { ProductVisualPlaceholder } from "../features/catalog/components/ProductVisualPlaceholder";
 import { formatMoney } from "../lib/money";
 import { useCartStore, type CartItem } from "../stores/cartStore";
 
+const DEMO_CUSTOMER_ID = "c3d8c4b2-0a0d-4f9b-bc58-6d2b4d2f10ab";
+
 export function CartPage() {
+  const navigate = useNavigate();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
@@ -12,13 +18,29 @@ export function CartPage() {
   const clearCart = useCartStore((state) => state.clearCart);
   const totalPrice = useCartStore((state) => state.getTotalPrice());
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const createOrderMutation = useMutation({
+    mutationFn: () =>
+      createOrder({
+        customerId: DEMO_CUSTOMER_ID,
+        items: items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      }),
+    onSuccess: (response) => {
+      clearCart();
+      navigate(`/orders/${response.orderId}`);
+    },
+  });
+  const checkoutDisabled = items.length === 0 || createOrderMutation.isPending;
 
   return (
     <div>
       <PageHeader
         eyebrow="Checkout"
         title="Cart staging bay"
-        description="Frontend-only cart state for shaping the checkout payload. Order creation stays offline for this step."
+        description="Create an order from the frontend cart and hand off to the saga status route."
       />
 
       {items.length === 0 ? (
@@ -55,14 +77,28 @@ export function CartPage() {
             </div>
             <button
               type="button"
-              className="mt-6 w-full rounded-2xl border border-violet-300/25 bg-violet-500/10 px-4 py-3 text-sm font-semibold text-zinc-300 opacity-75"
-              disabled
+              onClick={() => createOrderMutation.mutate()}
+              disabled={checkoutDisabled}
+              className="mt-6 w-full rounded-2xl border border-violet-300/35 bg-violet-500/20 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:border-neon-glow/70 hover:bg-violet-500/30 hover:shadow-neon disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:border-violet-300/35 disabled:hover:bg-violet-500/20 disabled:hover:shadow-none"
             >
-              Checkout coming next
+              {createOrderMutation.isPending ? "Creating order..." : "Create order"}
             </button>
+            {createOrderMutation.isError ? (
+              <div className="mt-4 rounded-2xl border border-red-300/25 bg-red-400/10 p-4">
+                <p className="text-sm font-semibold text-neon-error">
+                  Order creation failed
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">
+                  {createOrderMutation.error instanceof Error
+                    ? createOrderMutation.error.message
+                    : "Unable to create order. Please try again."}
+                </p>
+              </div>
+            ) : null}
             <button
               type="button"
               onClick={clearCart}
+              disabled={createOrderMutation.isPending}
               className="mt-3 w-full rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm font-semibold text-neon-error transition duration-200 hover:-translate-y-0.5 hover:border-red-300/45 hover:bg-red-400/15"
             >
               Clear cart
