@@ -1,36 +1,83 @@
-import { GlassPanel } from "../components/ui/GlassPanel";
 import { PageHeader } from "../components/ui/PageHeader";
+import { ProductCard } from "../features/catalog/components/ProductCard";
+import { ProductGridSkeleton } from "../features/catalog/components/ProductGridSkeleton";
+import { useProductsQuery } from "../features/catalog/hooks/useProductsQuery";
 
 export function ProductsPage() {
+  const { data: products, isLoading, isError, error, refetch } = useProductsQuery();
+
   return (
     <div>
       <PageHeader
         eyebrow="Catalog"
         title="Products arena"
-        description="The catalog route is ready for the live gateway contract. Product loading and recommendation flows will land in the next steps."
+        description="Live gateway catalog rendered as a neon marketplace grid. Recommendations and cart actions stay offline for this step."
       />
 
-      <GlassPanel>
-        <div className="grid gap-4 md:grid-cols-3">
-          {["Keyboard rigs", "Precision mice", "Battle stations"].map(
-            (label) => (
-              <div
-                key={label}
-                className="relative overflow-hidden rounded-2xl border border-violet-400/20 bg-black/25 p-5"
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-                <div className="h-28 rounded-2xl border border-violet-400/20 bg-gradient-to-br from-violet-500/25 to-fuchsia-500/10" />
-                <p className="mt-4 text-sm font-semibold text-slate-100">
-                  {label}
-                </p>
-                <p className="mt-2 text-sm text-zinc-400">
-                  Placeholder surface for the upcoming live catalog cards.
-                </p>
-              </div>
-            ),
-          )}
+      {isLoading ? <ProductGridSkeleton /> : null}
+
+      {isError ? (
+        <CatalogErrorState
+          message={error instanceof Error ? error.message : "Unable to load products."}
+          onRetry={() => void refetch()}
+        />
+      ) : null}
+
+      {!isLoading && !isError && products?.length === 0 ? (
+        <CatalogEmptyState />
+      ) : null}
+
+      {!isLoading && !isError && products && products.length > 0 ? (
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
-      </GlassPanel>
+      ) : null}
+    </div>
+  );
+}
+
+function CatalogErrorState({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="rounded-3xl border border-red-300/25 bg-red-400/10 p-6 shadow-neon-soft backdrop-blur-xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-neon-error">
+        Catalog offline
+      </p>
+      <h3 className="mt-3 text-2xl font-semibold text-slate-50">
+        Could not load products
+      </h3>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-300">{message}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="mt-5 rounded-2xl border border-violet-300/35 bg-violet-500/15 px-4 py-2 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:border-neon-glow/70 hover:bg-violet-500/25 hover:shadow-neon"
+      >
+        Retry catalog
+      </button>
+    </div>
+  );
+}
+
+function CatalogEmptyState() {
+  return (
+    <div className="rounded-3xl border border-violet-400/25 bg-[rgba(20,20,32,0.75)] p-8 text-center shadow-neon-soft backdrop-blur-xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-neon-glow">
+        Empty catalog
+      </p>
+      <h3 className="mt-3 text-2xl font-semibold text-slate-50">
+        No products are available
+      </h3>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-zinc-400">
+        The gateway responded successfully, but the catalog returned an empty
+        collection.
+      </p>
     </div>
   );
 }
