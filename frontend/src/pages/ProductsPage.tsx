@@ -11,7 +11,7 @@ export function ProductsPage() {
       <PageHeader
         eyebrow="Catalog"
         title="Products arena"
-        description="Live gateway catalog rendered as a neon marketplace grid. Recommendations and cart actions stay offline for this step."
+        description="Live gateway catalog with resilient product cards, cart actions, and detail pages for AI-assisted discovery."
       />
 
       {isLoading ? <ProductGridSkeleton /> : null}

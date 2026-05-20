@@ -5,7 +5,6 @@ import { useCartStore } from "../../stores/cartStore";
 const navItems = [
   { to: "/products", label: "Catalog" },
   { to: "/cart", label: "Cart" },
-  { to: "/orders/demo-order-id", label: "Saga Timeline" },
 ];
 
 export function AppLayout() {
@@ -17,18 +16,18 @@ export function AppLayout() {
       <div className="pointer-events-none fixed inset-x-0 top-0 h-48 bg-gradient-to-b from-neon-primary/20 to-transparent blur-3xl" />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
-        <header className="sticky top-5 z-20 rounded-3xl border border-violet-400/25 bg-[rgba(20,20,32,0.75)] px-5 py-4 shadow-neon-soft backdrop-blur-xl">
+        <header className="sticky top-5 z-20 rounded-3xl border border-violet-400/25 bg-[rgba(20,20,32,0.82)] px-5 py-4 shadow-neon-soft backdrop-blur-xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-neon-glow">
                 Saga Marketplace
               </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-50">
-                Neon demo control room
+              <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-50 sm:text-3xl">
+                Distributed commerce control room
               </h1>
             </div>
 
-            <nav className="flex flex-wrap gap-2">
+            <nav className="flex flex-wrap gap-2" aria-label="Primary navigation">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}

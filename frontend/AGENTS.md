@@ -35,7 +35,7 @@ Frontend must communicate ONLY through the Gateway API.
 Default local environment variable:
 
 ```env
-VITE_API_BASE_URL=http://20.223.61.242
+VITE_API_BASE_URL=https://your-gateway.example.com
 ```
 
 Do not call internal Kubernetes services directly.
@@ -215,5 +215,4 @@ Do not silently change API contracts.
 Do not hide failed states.
 
 This backend is distributed and eventually consistent. The frontend must reflect Processing, Completed, and Failed states clearly.
-
 

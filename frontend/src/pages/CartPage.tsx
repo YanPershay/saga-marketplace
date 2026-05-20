@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createOrder } from "../api/ordersApi";
 import { GlassPanel } from "../components/ui/GlassPanel";
 import { PageHeader } from "../components/ui/PageHeader";
@@ -99,7 +99,7 @@ export function CartPage() {
               type="button"
               onClick={clearCart}
               disabled={createOrderMutation.isPending}
-              className="mt-3 w-full rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm font-semibold text-neon-error transition duration-200 hover:-translate-y-0.5 hover:border-red-300/45 hover:bg-red-400/15"
+              className="mt-3 w-full rounded-2xl border border-red-300/25 bg-red-400/10 px-4 py-3 text-sm font-semibold text-neon-error transition duration-200 hover:-translate-y-0.5 hover:border-red-300/45 hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
               Clear cart
             </button>
@@ -122,14 +122,8 @@ function CartLineItem({
   onRemove: () => void;
 }) {
   const productLike = {
-    id: item.productId,
     name: item.name,
-    description: item.description,
-    price: item.price,
-    quantityAvailable: item.quantity,
-    createdAt: "",
     category: item.category,
-    imageUrl: item.imageUrl,
   };
 
   return (
@@ -231,6 +225,12 @@ function CartEmptyState() {
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-400">
             Add products from the catalog to stage a checkout payload.
           </p>
+          <Link
+            to="/products"
+            className="mt-6 inline-flex rounded-2xl border border-violet-300/35 bg-violet-500/15 px-4 py-2 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:border-neon-glow/70 hover:bg-violet-500/25 hover:shadow-neon"
+          >
+            Browse catalog
+          </Link>
         </div>
       </div>
     </GlassPanel>

@@ -25,12 +25,12 @@ Frontend must use only the Gateway.
 Base URL:
 
 ```text
-http://20.223.61.242
+<gateway-base-url>
 ```
 
 In frontend code use:
 ```
-VITE_API_BASE_URL=http://20.223.61.242
+VITE_API_BASE_URL=https://your-gateway.example.com
 ```
 ---
 
@@ -448,5 +448,4 @@ Do Not Build
 * SSR
 * Next.js
 * fake backend
-
 

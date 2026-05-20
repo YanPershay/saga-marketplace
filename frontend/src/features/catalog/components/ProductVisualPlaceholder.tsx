@@ -1,7 +1,8 @@
-import type { Product } from "../../../types/product";
-
 type ProductVisualPlaceholderProps = {
-  product: Product;
+  product: {
+    name: string;
+    category?: string;
+  };
 };
 
 type PlaceholderKind =
@@ -80,7 +81,7 @@ export function ProductVisualPlaceholder({
   );
 }
 
-function getPlaceholderKind(product: Product): PlaceholderKind {
+function getPlaceholderKind(product: ProductVisualPlaceholderProps["product"]): PlaceholderKind {
   const source = `${product.category ?? ""} ${product.name}`.toLowerCase();
 
   if (source.includes("keyboard")) return "keyboard";
