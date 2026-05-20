@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../api/config";
+import { useCartStore } from "../../stores/cartStore";
 
 const navItems = [
   { to: "/products", label: "Catalog" },
@@ -8,6 +9,8 @@ const navItems = [
 ];
 
 export function AppLayout() {
+  const cartItemsCount = useCartStore((state) => state.getTotalItems());
+
   return (
     <div className="min-h-screen overflow-hidden bg-abyss-950 text-slate-50">
       <div className="pointer-events-none fixed inset-0 bg-radial-grid bg-[length:100%_100%,100%_100%,28px_28px]" />
@@ -40,7 +43,12 @@ export function AppLayout() {
                     ].join(" ")
                   }
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.to === "/cart" && cartItemsCount > 0 ? (
+                    <span className="ml-2 inline-flex min-w-6 items-center justify-center rounded-full border border-neon-glow/40 bg-violet-500/25 px-2 py-0.5 text-xs font-semibold text-white shadow-neon">
+                      {cartItemsCount}
+                    </span>
+                  ) : null}
                 </NavLink>
               ))}
             </nav>
