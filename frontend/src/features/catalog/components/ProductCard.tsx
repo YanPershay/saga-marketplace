@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { formatMoney } from "../../../lib/money";
 import { useCartStore } from "../../../stores/cartStore";
 import type { Product } from "../../../types/product";
@@ -66,6 +67,12 @@ export function ProductCard({ product }: ProductCardProps) {
               ? `Add one more (${quantityInCart} in cart)`
               : "Add to cart"}
           </button>
+          <Link
+            to={`/products/${product.id}`}
+            className="mt-3 flex w-full items-center justify-center rounded-2xl border border-violet-400/20 bg-black/25 px-4 py-3 text-sm font-semibold text-zinc-200 transition duration-200 hover:-translate-y-0.5 hover:border-neon-glow/60 hover:bg-violet-500/10 hover:text-white"
+          >
+            Details
+          </Link>
         </div>
       </div>
     </article>

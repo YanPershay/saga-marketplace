@@ -55,7 +55,7 @@ spec:
             - name: RabbitMq__VirtualHost
               value: "/"
 
-            - name: ConnectionStrings__PaymentDb
+            - name: ConnectionStrings__PaymentDatabase
               valueFrom:
                 secretKeyRef:
                   name: saga-secret

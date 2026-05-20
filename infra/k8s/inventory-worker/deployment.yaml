@@ -55,7 +55,7 @@ spec:
             - name: RabbitMq__VirtualHost
               value: "/"
 
-            - name: ConnectionStrings__InventoryDb
+            - name: ConnectionStrings__InventoryDatabase
               valueFrom:
                 secretKeyRef:
                   name: saga-secret
